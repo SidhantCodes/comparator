@@ -14,6 +14,7 @@ export interface Product {
     name: string;
     logo: string;
   };
+  image?: string
   specs: {
     antutu: string;
     ram: string;

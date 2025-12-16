@@ -56,5 +56,13 @@
     server: {
       port: 3000,
       open: true,
+      proxy: {
+      '/phones': {
+        target: 'https://compare.akshayy.site',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/phones/, '/phones'),
+      },
     },
+    },
+    
   });
