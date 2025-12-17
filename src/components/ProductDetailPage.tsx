@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Star, ChevronLeft } from 'lucide-react';
+import { Star, ChevronLeft, ExternalLink } from 'lucide-react';
 
 import { Header } from './Header';
 import { Footer } from './Footer';
@@ -15,9 +15,9 @@ export function ProductDetailPage() {
   const navigate = useNavigate();
 
   const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
 
-  /* ----------------------------- Fetch API ----------------------------- */
+  /* ----------------------------- Fetch ----------------------------- */
   useEffect(() => {
     let mounted = true;
 
@@ -26,13 +26,11 @@ export function ProductDetailPage() {
 
       try {
         const response = await endpoints.compare([id]);
-
-        if (response.data?.phones?.length > 0 && mounted) {
-          const adapted = adaptComparePhoneToProduct(response.data.phones[0]);
-          setProduct(adapted);
+        if (response.data?.phones?.length && mounted) {
+          setProduct(adaptComparePhoneToProduct(response.data.phones[0]));
         }
-      } catch (err) {
-        console.error('Failed to load product details', err);
+      } catch (e) {
+        console.error('Failed to load product', e);
       } finally {
         if (mounted) setLoading(false);
       }
@@ -44,7 +42,7 @@ export function ProductDetailPage() {
     };
   }, [id]);
 
-  /* ------------------------------ Guards ------------------------------- */
+  /* ----------------------------- Guards ----------------------------- */
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -71,30 +69,46 @@ export function ProductDetailPage() {
     );
   }
 
-  /* --------------------------- Spec Mapping ---------------------------- */
+  /* --------------------------- Specs --------------------------- */
   const specSections = [
     {
       title: 'Performance',
       items: [
-        { label: 'Processor', value: product.detailedSpecs.processor.chipset },
+        { label: 'Chipset', value: product.detailedSpecs.processor.chipset },
+        { label: 'CPU', value: product.detailedSpecs.processor.cpu },
+        { label: 'AnTuTu Score', value: product.specs.antutu },
         { label: 'RAM', value: product.detailedSpecs.ramStorage.ram },
         { label: 'Storage', value: product.detailedSpecs.ramStorage.storage },
+        { label: 'Storage Type', value: product.detailedSpecs.ramStorage.type },
       ],
     },
     {
       title: 'Display',
       items: [
-        { label: 'Size', value: product.detailedSpecs.display.size },
+        { label: 'Screen Size', value: product.detailedSpecs.display.size },
         { label: 'Resolution', value: product.detailedSpecs.display.resolution },
-        { label: 'Type', value: product.detailedSpecs.display.hdr },
+        {
+          label: 'Refresh Rate',
+          value: product.specs.display.includes('Hz')
+            ? product.specs.display.split(' ').pop()
+            : 'Standard',
+        },
+        { label: 'HDR Support', value: product.detailedSpecs.display.hdr },
       ],
     },
     {
-      title: 'Camera',
+      title: 'Camera (Rear)',
       items: [
-        { label: 'Rear Camera', value: product.detailedSpecs.camera.rear.main },
-        { label: 'Video', value: product.detailedSpecs.camera.rear.video },
-        { label: 'Front Camera', value: product.detailedSpecs.camera.front.sensor },
+        { label: 'Main Sensor', value: product.detailedSpecs.camera.rear.main },
+        { label: 'Ultra-wide', value: product.detailedSpecs.camera.rear.ultraWide },
+        { label: 'Video Recording', value: product.detailedSpecs.camera.rear.video },
+      ],
+    },
+    {
+      title: 'Camera (Front)',
+      items: [
+        { label: 'Sensor', value: product.detailedSpecs.camera.front.sensor },
+        { label: 'Aperture / Video', value: product.detailedSpecs.camera.front.aperture },
       ],
     },
     {
@@ -102,11 +116,27 @@ export function ProductDetailPage() {
       items: [
         { label: 'Capacity', value: product.detailedSpecs.battery.capacity },
         { label: 'Charging', value: product.detailedSpecs.battery.charging },
+        { label: 'Charger in Box', value: product.detailedSpecs.battery.chargerInBox },
+      ],
+    },
+    {
+      title: 'Design & Durability',
+      items: [
+        { label: 'Front Protection', value: product.detailedSpecs.design.frontProtection },
+        { label: 'Back Material', value: product.detailedSpecs.design.backMaterial },
+        { label: 'IP Rating', value: product.detailedSpecs.design.ipRating },
+      ],
+    },
+    {
+      title: 'Software',
+      items: [
+        { label: 'Operating System', value: product.detailedSpecs.os.version },
+        { label: 'Update Policy', value: product.detailedSpecs.os.updates },
       ],
     },
   ];
 
-  /* -------------------------------------------------------------------- */
+  /* ----------------------------- Render ----------------------------- */
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -118,34 +148,28 @@ export function ProductDetailPage() {
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
         >
           <ChevronLeft className="w-4 h-4" />
-          Back
+          Back to results
         </button>
 
-        {/* ======================= HEADER CARD ======================= */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6 border border-gray-100">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            {product.name}
-          </h1>
+        {/* Header Card */}
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-5 border border-gray-100">
+          <h1 className="text-gray-900 mb-3 text-3xl">{product.name}</h1>
 
-          <div className="flex flex-wrap items-center gap-6 mb-6">
+          <div className="flex flex-wrap items-center gap-6 mb-4">
             <div className="bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl border border-emerald-200">
-              <span className="text-2xl font-bold">{product.beebomScore}</span>{' '}
-              Score
+              <span className="text-2xl font-semibold">{product.beebomScore}</span>
+              <span className="text-xs ml-2">Score</span>
             </div>
 
             <div className="flex items-center gap-2">
               <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-              <span className="font-medium">
-                {product.rating || 'N/A'}
-              </span>
-              <span className="text-gray-500">
-                ({product.reviews || 0})
-              </span>
+              <span className="font-medium">{product.rating}</span>
+              <span className="text-gray-500">({product.reviews})</span>
             </div>
           </div>
 
-          {/* Price (estimated) */}
-          <div className="pt-4 border-t">
+          {/* Price row */}
+          <div className="pt-4 border-t border-gray-100">
             <div className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border">
               <div>
                 <div className="text-sm text-gray-500">Estimated Price</div>
@@ -160,43 +184,50 @@ export function ProductDetailPage() {
           </div>
         </div>
 
-        {/* =================== IMAGE + SPECS =================== */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Image */}
-          <div className="bg-white p-6 rounded-xl border border-gray-100 h-fit">
-            <div className="aspect-[3/4] flex items-center justify-center bg-gray-50 rounded-lg mb-4">
-              <ImageWithFallback
-                src={product.image || ''}
-                alt={product.name}
-                className="max-h-full max-w-full object-contain"
-              />
-            </div>
-            <div className="text-center text-sm text-gray-500">
-              Released: {product.launchDate}
+        {/* IMAGE + SPECS (CRITICAL FIX) */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-5 mb-6">
+          {/* Image column */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-xl shadow-sm p-5 border border-gray-100 sticky top-24">
+              <div className="aspect-[3/4] bg-gray-50 rounded-xl mb-3 flex items-center justify-center border">
+                <ImageWithFallback
+                  src={product.image || ''}
+                  alt={product.name}
+                  className="max-h-full max-w-full object-contain"
+                />
+              </div>
+              <div className="text-center pt-3 border-t border-gray-100">
+                <div className="text-sm text-gray-600">Launched</div>
+                <div className="text-gray-900 font-medium">
+                  {product.launchDate}
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Specs */}
-          <div className="lg:col-span-2 space-y-4">
-            <h2 className="text-2xl font-bold">Specifications</h2>
+          {/* Specs column */}
+          <div className="lg:col-span-3">
+            <h2 className="text-gray-900 mb-3 text-2xl">
+              Technical Specifications
+            </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {specSections.map(section => (
                 <div
                   key={section.title}
-                  className="bg-white p-4 rounded-xl border border-gray-100"
+                  className="bg-white rounded-xl shadow-sm p-4 border border-gray-100"
                 >
-                  <h3 className="font-semibold border-b pb-2 mb-3">
+                  <h3 className="text-gray-900 mb-3 pb-2 border-b border-gray-100">
                     {section.title}
                   </h3>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2.5">
                     {section.items.map(item => (
                       <div key={item.label}>
-                        <div className="text-xs text-gray-500 uppercase">
+                        <div className="text-xs text-gray-500 uppercase tracking-wide mb-0.5">
                           {item.label}
                         </div>
-                        <div className="font-medium">
+                        <div className="text-gray-900 text-sm break-words">
                           {item.value || 'N/A'}
                         </div>
                       </div>
@@ -205,6 +236,40 @@ export function ProductDetailPage() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* Price Comparison */}
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <h2 className="text-gray-900 mb-4 text-2xl">Price Comparison</h2>
+
+          <div className="space-y-3">
+            {product.priceComparison?.map((p, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:border-emerald-500 transition-all"
+              >
+                <div>
+                  <div className="font-medium">{p.retailer}</div>
+                  <div className="text-sm text-gray-500">In Stock</div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="text-xl font-semibold">
+                    ₹{p.price.toLocaleString()}
+                  </div>
+                  <a
+                    href={p.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-5 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 flex items-center gap-2"
+                  >
+                    View Deal
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

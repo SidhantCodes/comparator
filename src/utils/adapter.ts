@@ -1,135 +1,265 @@
 import { Product } from '../data/mockData';
 import { ApiPhone, ApiComparePhone } from '../api/types';
 
-// Helper to convert EUR to INR (approximate fixed rate for display)
-const convertPrice = (eur: number) => Math.round(eur * 1);
+/**
+ * Extract INR price from misc.price if available, fallback to EUR estimate
+ */
+const getPriceInInr = (apiPhone: ApiPhone): number => {
+  const miscPrice = apiPhone.specs?.misc?.price;
+
+  if (miscPrice && miscPrice.includes('₹')) {
+    const parsed = parseInt(miscPrice.replace(/[^\d]/g, ''), 10);
+    if (!Number.isNaN(parsed)) return parsed;
+  }
+
+  // Fallback: EUR → INR (approx display conversion)
+  const eur = apiPhone.search_specs?.price_estimate_eur ?? 0;
+  return Math.round(eur * 90);
+};
 
 /**
- * Adapts the Search API response to your Product interface
+ * Extract Antutu score safely
+ */
+const extractAntutu = (apiPhone: ApiPhone): string => {
+  const perf = apiPhone.specs?.['our tests']?.performance;
+  if (!perf) return 'N/A';
+
+  const match = perf.match(/AnTuTu:\s([\d]+)/i);
+  return match ? match[1] : 'N/A';
+};
+
+/**
+ * Extract IP rating from body notes
+ */
+const extractIpRating = (apiPhone: ApiPhone): string => {
+  const bodyNotes = apiPhone.specs?.body?.[''];
+  if (!bodyNotes) return 'No official rating';
+
+  const match = bodyNotes.match(/IP\d+[A-Z]*/i);
+  return match ? match[0] : 'No official rating';
+};
+
+/**
+ * Extract main rear camera string
+ */
+const extractMainCamera = (apiPhone: ApiPhone): string => {
+  return (
+    apiPhone.specs?.['main camera']?.triple ||
+    apiPhone.specs?.['main camera']?.dual ||
+    'Camera details unavailable'
+  );
+};
+
+/**
+ * ================================
+ * SEARCH → PRODUCT ADAPTER
+ * ================================
  */
 export const adaptApiPhoneToProduct = (apiPhone: ApiPhone): Product => {
-  const priceInr = convertPrice(apiPhone.search_specs.price_estimate_eur || 0);
-  
+  const price = getPriceInInr(apiPhone);
+  const antutu = extractAntutu(apiPhone);
+  const mainCamera = extractMainCamera(apiPhone);
+
   return {
     id: apiPhone._id,
-    name: `${apiPhone.model_name}`,
+    name: apiPhone.model_name,
     category: `${apiPhone.brand} Phones`,
-    image: `${apiPhone.image}`,
-    price: priceInr,
-    oldPrice: Math.round(priceInr * 1.1), // Mock old price
-    daysAgo: 'Recently',
+    image: apiPhone.image,
+
+    price,
+    oldPrice: Math.round(price * 1.1),
+
+    daysAgo: apiPhone.specs?.launch?.status || 'Recently',
     beebomScore: Math.round(apiPhone.tech_score),
-    rating: 0, // Search API doesn't return user rating, need detail endpoint
-    reviews: '0 Ratings',
-    highlight: apiPhone.tech_score > 85 ? 'HIGH PERFORMANCE' : 'GOOD VALUE',
+
+    // Ratings not present in API
+    rating: 0,
+    reviews: 'No ratings yet',
+
+    highlight:
+      apiPhone.tech_score >= 92
+        ? 'FLAGSHIP'
+        : apiPhone.tech_score >= 85
+        ? 'HIGH PERFORMANCE'
+        : 'GOOD VALUE',
+
     launchDate: apiPhone.search_specs.release_year.toString(),
+
     retailer: {
-      name: 'Global Import',
-      logo: '🌍'
+      name: 'Market Price',
+      logo: '🏷️'
     },
+
     specs: {
-      antutu: 'N/A', // Not in search response
+      antutu,
       ram: `${apiPhone.search_specs.ram_gb}GB`,
-      zoom: 'N/A',
+      zoom: mainCamera.toLowerCase().includes('telephoto')
+        ? 'Optical Zoom'
+        : 'Standard',
       processor: apiPhone.search_specs.chipset,
       display: `${apiPhone.search_specs.screen_size_inch}" ${apiPhone.search_specs.refresh_rate_hz}Hz`,
-      camera: 'See Details',
+      camera: mainCamera.split('\n')[0],
       battery: `${apiPhone.search_specs.battery_mah}mAh`,
       storage: `${apiPhone.search_specs.storage_gb}GB`
     },
-    // We fill detailed specs with placeholders because search API is lightweight
-    // The Compare/Detail page will fetch the rich data
+
     detailedSpecs: {
-      processor: { chipset: apiPhone.search_specs.chipset, cpu: 'Octa-core' },
-      display: { size: `${apiPhone.search_specs.screen_size_inch}"`, resolution: 'HD+', hdr: 'Supported' },
-      battery: { capacity: `${apiPhone.search_specs.battery_mah}mAh`, charging: 'Fast Charging', chargerInBox: 'Region Dependent' },
-      camera: { rear: { main: 'Main Sensor', ultraWide: 'Yes', video: '4K' }, front: { sensor: 'Selfie', aperture: 'f/2.0' } },
-      ramStorage: { ram: `${apiPhone.search_specs.ram_gb}GB`, storage: `${apiPhone.search_specs.storage_gb}GB`, type: 'UFS' },
-      design: { frontProtection: 'Glass', backMaterial: 'Glass/Plastic', ipRating: 'IP53+' },
-      os: { version: 'Android/iOS', updates: 'Standard Support' }
+      processor: {
+        chipset: apiPhone.search_specs.chipset,
+        cpu: apiPhone.specs?.platform?.cpu || 'Octa-core'
+      },
+
+      display: {
+        size: apiPhone.specs?.display?.size || '',
+        resolution: apiPhone.specs?.display?.resolution || '',
+        hdr: apiPhone.specs?.display?.type?.includes('HDR') ? 'Yes' : 'No'
+      },
+
+      battery: {
+        capacity: apiPhone.specs?.battery?.type || '',
+        charging: apiPhone.specs?.battery?.charging || 'Standard charging',
+        chargerInBox: 'Region dependent'
+      },
+
+      camera: {
+        rear: {
+          main: mainCamera,
+          ultraWide: mainCamera.toLowerCase().includes('ultrawide')
+            ? 'Yes'
+            : 'No',
+          video: apiPhone.specs?.['main camera']?.video || 'Standard'
+        },
+        front: {
+          sensor: apiPhone.specs?.['selfie camera']?.single || '',
+          aperture: 'Refer manufacturer specs'
+        }
+      },
+
+      ramStorage: {
+        ram: `${apiPhone.search_specs.ram_gb}GB`,
+        storage: `${apiPhone.search_specs.storage_gb}GB`,
+        type: apiPhone.specs?.memory?.[''] || 'UFS'
+      },
+
+      design: {
+        frontProtection: apiPhone.specs?.display?.protection || 'Glass',
+        backMaterial: apiPhone.specs?.body?.build || '',
+        ipRating: extractIpRating(apiPhone)
+      },
+
+      os: {
+        version: apiPhone.specs?.platform?.os || 'Android',
+        updates: apiPhone.specs?.platform?.os?.includes('up to')
+          ? 'Long-term support'
+          : 'Standard support'
+      }
     },
+
     priceComparison: [
       {
-        retailer: 'Estimated Market Price',
-        price: priceInr,
+        retailer: 'Market Price',
+        price,
         logo: '🏷️',
-        availability: 'Check Local Retailers',
-        url: '#'
+        availability: 'Check local availability',
+        url: apiPhone.url
       }
     ]
   };
 };
 
 /**
- * Adapts the Compare API response to your Product interface
- * This endpoint returns richer data used for Detail and Compare pages
+ * ================================
+ * COMPARE → PRODUCT ADAPTER
+ * ================================
+ * (Compare endpoint already normalized, so minimal mocking)
  */
-export const adaptComparePhoneToProduct = (apiPhone: ApiComparePhone): Product => {
-  // Price isn't strictly in compare object, so we mock or pass it in if available contextually
-  // We'll use a placeholder since compare endpoint focuses on specs
-  const estimatedPrice = 50000; 
+export const adaptComparePhoneToProduct = (
+  apiPhone: ApiComparePhone
+): Product => {
+  const estimatedPrice = 50000;
 
   return {
     id: apiPhone.id,
     name: apiPhone.model,
     category: 'Smartphone',
-    price: estimatedPrice,
     image: apiPhone.image,
+
+    price: estimatedPrice,
+    oldPrice: Math.round(estimatedPrice * 1.1),
+
     beebomScore: Math.round(apiPhone.tech_score),
     rating: apiPhone.ratings.user_score || 0,
-    reviews: `${apiPhone.ratings.user_votes} Ratings`,
-    highlight: 'Top Spec',
+    reviews: `${apiPhone.ratings.user_votes || 0} Ratings`,
+
+    highlight: 'TOP SPEC',
     launchDate: apiPhone.comparison_values.year.toString(),
-    retailer: { name: 'Best Deal', logo: '🏷️' },
+
+    retailer: {
+      name: 'Market Estimate',
+      logo: '🏷️'
+    },
+
     specs: {
       antutu: 'High',
       ram: `${apiPhone.comparison_values.ram}GB`,
-      zoom: 'See Specs',
+      zoom: 'See specs',
       processor: apiPhone.display_text.processor,
       display: `${apiPhone.comparison_values.screen_size}" ${apiPhone.comparison_values.refresh_rate}Hz`,
       camera: apiPhone.display_text.camera,
       battery: apiPhone.display_text.battery,
       storage: `${apiPhone.comparison_values.storage}GB`
     },
+
     detailedSpecs: {
-      processor: { 
-        chipset: apiPhone.display_text.processor, 
-        cpu: 'See manufacturer site' 
+      processor: {
+        chipset: apiPhone.display_text.processor,
+        cpu: 'Refer manufacturer'
       },
-      display: { 
-        size: `${apiPhone.comparison_values.screen_size}"`, 
-        resolution: apiPhone.display_text.display || 'High Res', 
-        hdr: 'Yes' 
+      display: {
+        size: `${apiPhone.comparison_values.screen_size}"`,
+        resolution: apiPhone.display_text.display || '',
+        hdr: 'Yes'
       },
-      battery: { 
-        capacity: apiPhone.display_text.battery, 
-        charging: 'Supported', 
-        chargerInBox: 'Check box' 
+      battery: {
+        capacity: apiPhone.display_text.battery,
+        charging: 'Supported',
+        chargerInBox: 'Check retail box'
       },
-      camera: { 
-        rear: { 
-          main: apiPhone.display_text.camera.split(',')[0] || 'Main', 
-          ultraWide: 'Included', 
-          video: '4K' 
-        }, 
-        front: { sensor: 'Included', aperture: 'f/2.2' } 
-      },
-      ramStorage: { 
-        ram: `${apiPhone.comparison_values.ram}GB`, 
-        storage: `${apiPhone.comparison_values.storage}GB`, 
-        type: 'Standard' 
-      },
-      design: { frontProtection: 'Glass', backMaterial: 'Premium', ipRating: 'Standard' },
-      os: { version: 'Latest', updates: 'Supported' }
-    },
-    priceComparison: [
-        {
-          retailer: 'Market Estimate',
-          price: estimatedPrice,
-          logo: '🏷️',
-          availability: 'Check Availability',
-          url: '#'
+      camera: {
+        rear: {
+          main: apiPhone.display_text.camera.split(',')[0],
+          ultraWide: 'Included',
+          video: '4K'
+        },
+        front: {
+          sensor: 'Included',
+          aperture: 'Refer specs'
         }
+      },
+      ramStorage: {
+        ram: `${apiPhone.comparison_values.ram}GB`,
+        storage: `${apiPhone.comparison_values.storage}GB`,
+        type: 'UFS'
+      },
+      design: {
+        frontProtection: 'Glass',
+        backMaterial: 'Premium',
+        ipRating: 'Standard'
+      },
+      os: {
+        version: 'Latest Android',
+        updates: 'Supported'
+      }
+    },
+
+    priceComparison: [
+      {
+        retailer: 'Market Estimate',
+        price: estimatedPrice,
+        logo: '🏷️',
+        availability: 'Check availability',
+        url: '#'
+      }
     ]
   };
 };

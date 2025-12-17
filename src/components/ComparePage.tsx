@@ -132,7 +132,6 @@ export function ComparePage() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
   /* ------------------- Comparison Data Definition ------------------- */
   const comparisonCategories = [
     {
@@ -274,7 +273,7 @@ export function ComparePage() {
                           >
                             <div className="w-8 h-8 bg-gray-100 rounded flex-shrink-0 flex items-center justify-center">
                                {/* Image displayed, no ID shown */}
-                               <img src={result.image} alt="" className="max-w-full max-h-full object-contain" />
+                              <img src={result.image} alt="" className="max-w-full max-h-full object-contain" />
                             </div>
                             <div>
                               {/* Name displayed, no ID shown */}

@@ -1,6 +1,5 @@
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
-// Added new icons required for the new UI card
 import { 
   Plus, 
   X, 
@@ -11,7 +10,8 @@ import {
   Battery, 
   HardDrive, 
   ExternalLink, 
-  ChevronRight 
+  ChevronRight, 
+  Search
 } from 'lucide-react';
 
 import { Header } from './Header';
@@ -52,6 +52,7 @@ export function SearchResultsPage() {
 
         setDirectory(adapted);
 
+        // 1. Filter products based on the User's Search Query (e.g., "iPhone 17")
         const filtered: Product[] = adapted.filter((p: Product): boolean => {
           const matchesQuery: boolean = query
             ? p.name.toLowerCase().includes(query.toLowerCase())
@@ -61,7 +62,39 @@ export function SearchResultsPage() {
         });
 
         setDisplayedProducts(filtered);
-        setComparisonProducts(filtered.slice(0, Math.min(filtered.length, 3)));
+
+        // ---------------------------------------------------------------
+        // CHANGED LOGIC START: Comparison based on Price Range
+        // ---------------------------------------------------------------
+        
+        if (filtered.length > 0) {
+          // The "Main" product is the best match for the search term
+          const mainProduct = filtered[0];
+          
+          // Define a price range (e.g., +/- 20%)
+          const currentPrice = mainProduct.price;
+          const minRange = currentPrice * 0.8;
+          const maxRange = currentPrice * 1.2;
+
+          // Find competitors from the FULL directory (adapted), not just the search results
+          // We filter by price, exclude the main product itself, and take the top 3
+          const priceCompetitors: Product[] = adapted.filter((p: Product): boolean => 
+            p.id !== mainProduct.id && 
+            p.price >= minRange && 
+            p.price <= maxRange
+          ).slice(0, 3);
+
+          // Combine Main Product + Price Competitors
+          setComparisonProducts([mainProduct, ...priceCompetitors]);
+        } else {
+          // Fallback if no search results found
+          setComparisonProducts([]);
+        }
+
+        // ---------------------------------------------------------------
+        // CHANGED LOGIC END
+        // ---------------------------------------------------------------
+
       } catch (error) {
         console.error('Error fetching search results', error);
       } finally {
@@ -126,30 +159,131 @@ export function SearchResultsPage() {
         }
       ]
     },
+
     {
-      title: 'Core Specs',
-      rows: [
-        { label: 'Processor', getValue: (p: Product) => p.specs.processor },
-        { label: 'RAM', getValue: (p: Product) => p.specs.ram },
-        { label: 'Storage', getValue: (p: Product) => p.specs.storage },
-        { label: 'Display', getValue: (p: Product) => p.specs.display }
-      ]
-    },
-    {
-      title: 'Camera & Battery',
+      title: 'Performance',
       rows: [
         {
-          label: 'Main Camera',
-          getValue: (p: Product) =>
-            p.detailedSpecs.camera.rear.main
+          label: 'Chipset',
+          getValue: (p: Product) => p.detailedSpecs.processor.chipset
         },
         {
-          label: 'Battery',
+          label: 'CPU',
+          getValue: (p: Product) => p.detailedSpecs.processor.cpu
+        },
+        {
+          label: 'AnTuTu Score',
+          getValue: (p: Product) => p.specs.antutu
+        },
+        {
+          label: 'RAM',
+          getValue: (p: Product) => p.specs.ram
+        },
+        {
+          label: 'Storage',
+          getValue: (p: Product) => p.specs.storage
+        }
+      ]
+    },
+
+    {
+      title: 'Display',
+      rows: [
+        {
+          label: 'Screen Size',
+          getValue: (p: Product) => p.detailedSpecs.display.size
+        },
+        {
+          label: 'Resolution',
+          getValue: (p: Product) => p.detailedSpecs.display.resolution
+        },
+        {
+          label: 'Refresh Rate',
+          getValue: (p: Product) =>
+            p.specs.display.includes('Hz')
+              ? p.specs.display.split(' ').pop()
+              : '-'
+        },
+        {
+          label: 'HDR Support',
+          getValue: (p: Product) => p.detailedSpecs.display.hdr
+        }
+      ]
+    },
+
+    {
+      title: 'Camera',
+      rows: [
+        {
+          label: 'Rear Camera',
+          getValue: (p: Product) =>
+            p.detailedSpecs.camera.rear.main.split('\n')[0]
+        },
+        {
+          label: 'Ultrawide Camera',
+          getValue: (p: Product) =>
+            p.detailedSpecs.camera.rear.ultraWide
+        },
+        {
+          label: 'Video Recording',
+          getValue: (p: Product) =>
+            p.detailedSpecs.camera.rear.video
+        },
+        {
+          label: 'Front Camera',
+          getValue: (p: Product) =>
+            p.detailedSpecs.camera.front.sensor
+        }
+      ]
+    },
+
+    {
+      title: 'Battery & Charging',
+      rows: [
+        {
+          label: 'Battery Capacity',
           getValue: (p: Product) => p.specs.battery
+        },
+        {
+          label: 'Charging',
+          getValue: (p: Product) =>
+            p.detailedSpecs.battery.charging
+        },
+        {
+          label: 'Charger in Box',
+          getValue: (p: Product) =>
+            p.detailedSpecs.battery.chargerInBox
+        }
+      ]
+    },
+
+    {
+      title: 'Design & Software',
+      rows: [
+        {
+          label: 'Build Material',
+          getValue: (p: Product) =>
+            p.detailedSpecs.design.backMaterial || '-'
+        },
+        {
+          label: 'Water / Dust Resistance',
+          getValue: (p: Product) =>
+            p.detailedSpecs.design.ipRating
+        },
+        {
+          label: 'Operating System',
+          getValue: (p: Product) =>
+            p.detailedSpecs.os.version
+        },
+        {
+          label: 'Software Support',
+          getValue: (p: Product) =>
+            p.detailedSpecs.os.updates
         }
       ]
     }
   ];
+
 
   /* ----------------------------- States ----------------------------- */
   if (loading) {
@@ -215,7 +349,6 @@ export function SearchResultsPage() {
             {/* Product Image */}
             <div className="flex-shrink-0 mx-auto sm:mx-0">
               <div className="w-32 h-40 sm:w-40 sm:h-52 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center border border-gray-200">
-                 {/* Replaced empty div with actual image component */}
                  <ImageWithFallback
                     src={mainProduct.image || ''}
                     alt={mainProduct.name}
@@ -332,55 +465,64 @@ export function SearchResultsPage() {
 
         {/* Comparison Tool */}
         <div>
-          <h2 className="text-xl font-bold mb-4">
-            Quick Comparison
-          </h2>
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h2 className="text-xl font-medium">
+                Compare with Similar Products
+              </h2>
+              <h5 className='text-gray-700'>
+                Side-by-side comparison of specifications and pricing
+              </h5>
+            </div>
 
-          {/* Add Phone */}
-          <div
-            className="relative max-w-md mb-6"
-            ref={searchContainerRef}
-          >
-            <input
-              value={searchInput}
-              onChange={e => {
-                setSearchInput(e.target.value);
-                setShowDropdown(true);
-              }}
-              onFocus={() => setShowDropdown(true)}
-              placeholder="Add phone to compare…"
-              className="w-full border rounded-lg px-4 py-2"
-            />
+            {/* Add Phone */}
+            <div
+              className="relative max-w-lg flex items-center border rounded-lg px-2"
+              ref={searchContainerRef}
+            >
+              <Search className="text-gray-400" />
+              <input
+                value={searchInput}
+                onChange={e => {
+                  setSearchInput(e.target.value);
+                  setShowDropdown(true);
+                }}
+                onFocus={() => setShowDropdown(true)}
+                placeholder="Add phone to compare…"
+                className="w-full rounded-lg px-4 py-2 placeholder:text-gray-400 focus:outline-none"
+              />
 
-            {showDropdown && searchInput && (
-              <div className="absolute top-full left-0 right-0 bg-white border rounded-lg shadow-lg mt-1 z-20 max-h-64 overflow-auto">
-                {filteredSuggestions.length > 0 ? (
-                  filteredSuggestions.slice(0, 10).map(p => (
-                    <button
-                      key={p.id}
-                      onClick={() => handleAddProduct(p)}
-                      className="w-full text-left p-3 hover:bg-emerald-50 flex gap-3"
-                    >
-                      <ImageWithFallback
-                        src={p.image || ''}
-                        className="w-8 h-10 object-contain"
-                      />
-                      <div>
-                        <div className="font-medium">{p.name}</div>
-                        <div className="text-xs text-gray-500">
-                          ₹{p.price.toLocaleString()}
+              {showDropdown && searchInput && (
+                <div className="absolute top-full left-0 right-0 bg-white border rounded-lg shadow-lg mt-1 z-20 max-h-64 overflow-auto">
+                  {filteredSuggestions.length > 0 ? (
+                    filteredSuggestions.slice(0, 10).map(p => (
+                      <button
+                        key={p.id}
+                        onClick={() => handleAddProduct(p)}
+                        className="w-full text-left p-3 hover:bg-emerald-50 flex gap-3"
+                      >
+                        <ImageWithFallback
+                          src={p.image || ''}
+                          alt={p.name}
+                          className="w-8 h-10 object-contain"
+                        />
+                        <div>
+                          <div className="font-medium">{p.name}</div>
+                          <div className="text-xs text-gray-500">
+                            ₹{p.price.toLocaleString()}
+                          </div>
                         </div>
-                      </div>
-                      <Plus className="ml-auto text-emerald-600 w-4 h-4" />
-                    </button>
-                  ))
-                ) : (
-                  <div className="p-4 text-sm text-gray-500 text-center">
-                    No phones found
-                  </div>
-                )}
-              </div>
-            )}
+                        <Plus className="ml-auto text-emerald-600 w-4 h-4" />
+                      </button>
+                    ))
+                  ) : (
+                    <div className="p-4 text-sm text-gray-500 text-center">
+                      No phones found
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Comparison Table */}
@@ -403,6 +545,7 @@ export function SearchResultsPage() {
                     </button>
                     <ImageWithFallback
                       src={p.image || ''}
+                      alt={p.name}
                       className="w-20 h-24 mx-auto mb-2 object-contain"
                     />
                     <div className="font-bold text-sm">{p.name}</div>

@@ -13,6 +13,7 @@ export interface ApiPhoneSearchSpec {
 export interface ApiPhone {
   _id: string;
   brand: string;
+  url: string;
   model_name: string;
   image: string;
   search_specs: ApiPhoneSearchSpec;
