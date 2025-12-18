@@ -4,17 +4,16 @@ import { ApiPhone, ApiComparePhone } from '../api/types';
 /**
  * Extract INR price from misc.price if available, fallback to EUR estimate
  */
-const getPriceInInr = (apiPhone: ApiPhone): number => {
-  const miscPrice = apiPhone.specs?.misc?.price;
+const getPriceInInr = (
+  apiPhone: ApiPhone
+): number | 'unavailable' => {
+  const price = apiPhone.search_specs?.price_inr;
 
-  if (miscPrice && miscPrice.includes('₹')) {
-    const parsed = parseInt(miscPrice.replace(/[^\d]/g, ''), 10);
-    if (!Number.isNaN(parsed)) return parsed;
+  if (typeof price === 'number' && price > 0) {
+    return price;
   }
 
-  // Fallback: EUR → INR (approx display conversion)
-  const eur = apiPhone.search_specs?.price_estimate_eur ?? 0;
-  return Math.round(eur * 90);
+  return 'unavailable';
 };
 
 /**
@@ -56,7 +55,8 @@ const extractMainCamera = (apiPhone: ApiPhone): string => {
  * ================================
  */
 export const adaptApiPhoneToProduct = (apiPhone: ApiPhone): Product => {
-  const price = getPriceInInr(apiPhone);
+  const priceResult = getPriceInInr(apiPhone);
+  const price = typeof priceResult === 'number' ? priceResult : 0;
   const antutu = extractAntutu(apiPhone);
   const mainCamera = extractMainCamera(apiPhone);
 
@@ -158,7 +158,7 @@ export const adaptApiPhoneToProduct = (apiPhone: ApiPhone): Product => {
     priceComparison: [
       {
         retailer: 'Market Price',
-        price,
+        price: price || 0,
         logo: '🏷️',
         availability: 'Check local availability',
         url: apiPhone.url

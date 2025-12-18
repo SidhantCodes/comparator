@@ -6,7 +6,7 @@ export interface ApiPhoneSearchSpec {
   refresh_rate_hz: number;
   release_year: number;
   has_5g: boolean;
-  price_estimate_eur: number;
+  price_inr: number;
   chipset: string;
 }
 
