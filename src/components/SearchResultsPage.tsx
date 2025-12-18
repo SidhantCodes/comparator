@@ -382,8 +382,8 @@ export function SearchResultsPage() {
                 <div className="flex items-start gap-2 border border-white/30 rounded-lg p-2 sm:p-3 bg-white/5">
                   <Cpu className="w-4 h-4 sm:w-5 sm:h-5 text-white mt-0.5 flex-shrink-0" />
                   <div>
-                    <div className="text-xs text-white/80 mb-1">Processor</div>
-                    <div className="text-xs sm:text-sm text-white font-medium">{mainProduct.specs.antutu}</div>
+                    <div className="text-xs text-white/80 mb-1">Launched</div>
+                    <div className="text-xs sm:text-sm text-white font-medium">{mainProduct.launchDate}</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-2 border border-white/30 rounded-lg p-2 sm:p-3 bg-white/5">
