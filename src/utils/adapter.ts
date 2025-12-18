@@ -176,7 +176,7 @@ export const adaptApiPhoneToProduct = (apiPhone: ApiPhone): Product => {
 export const adaptComparePhoneToProduct = (
   apiPhone: ApiComparePhone
 ): Product => {
-  const estimatedPrice = 50000;
+  const price = apiPhone.price_inr || 0; 
 
   return {
     id: apiPhone.id,
@@ -184,8 +184,8 @@ export const adaptComparePhoneToProduct = (
     category: 'Smartphone',
     image: apiPhone.image,
 
-    price: estimatedPrice,
-    oldPrice: Math.round(estimatedPrice * 1.1),
+    price: price,
+    oldPrice: price > 0 ? Math.round(price * 1.1) : 0,
 
     beebomScore: Math.round(apiPhone.tech_score),
     rating: apiPhone.ratings.user_score || 0,
@@ -255,7 +255,7 @@ export const adaptComparePhoneToProduct = (
     priceComparison: [
       {
         retailer: 'Market Estimate',
-        price: estimatedPrice,
+        price: price,
         logo: '🏷️',
         availability: 'Check availability',
         url: '#'

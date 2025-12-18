@@ -33,6 +33,7 @@ export interface ApiComparePhone {
   model: string;
   image: string;
   tech_score: number;
+  price_inr?: number;
   ratings: {
     expert_score: string | number;
     user_score: number;

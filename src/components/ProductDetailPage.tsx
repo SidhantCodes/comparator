@@ -7,8 +7,9 @@ import { Footer } from './Footer';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
 import { endpoints } from '../api/client';
-import { adaptComparePhoneToProduct } from '../utils/adapter';
+import { adaptApiPhoneToProduct, adaptComparePhoneToProduct } from '../utils/adapter';
 import { Product } from '../data/mockData';
+import { ApiPhone } from '../api/types';
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -25,21 +26,31 @@ export function ProductDetailPage() {
       if (!id) return;
 
       try {
-        const response = await endpoints.compare([id]);
-        if (response.data?.phones?.length && mounted) {
-          setProduct(adaptComparePhoneToProduct(response.data.phones[0]));
+        setLoading(true);
+        // We fetch from the "Main API" (search endpoint) 
+        // which contains the search_specs.price_inr
+        const response = await endpoints.search(1, 100); 
+        
+        if (mounted && response.data?.data) {
+          const apiPhones: ApiPhone[] = response.data.data;
+          const foundPhone = apiPhones.find((p) => p._id === id);
+
+          if (foundPhone) {
+            // Use the adapter specifically designed for the Main API
+            setProduct(adaptApiPhoneToProduct(foundPhone));
+          } else {
+            console.error('Product not found in current pool');
+          }
         }
       } catch (e) {
-        console.error('Failed to load product', e);
+        console.error('Failed to load product from Main API', e);
       } finally {
         if (mounted) setLoading(false);
       }
     };
 
     fetchProduct();
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, [id]);
 
   /* ----------------------------- Guards ----------------------------- */
