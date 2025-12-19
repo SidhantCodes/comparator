@@ -11,7 +11,7 @@ import {
   HardDrive, 
   ExternalLink, 
   ChevronRight, 
-  Search
+  Search,
 } from 'lucide-react';
 
 import { Header } from './Header';
@@ -71,10 +71,9 @@ export function SearchResultsPage() {
           // The "Main" product is the best match for the search term
           const mainProduct = filtered[0];
           
-          // Define a price range (e.g., +/- 20%)
           const currentPrice = mainProduct.price;
-          const minRange = currentPrice * 0.8;
-          const maxRange = currentPrice * 1.2;
+          const minRange = currentPrice - 20000;
+          const maxRange = currentPrice + 5000;
 
           // Find competitors from the FULL directory (adapted), not just the search results
           // We filter by price, exclude the main product itself, and take the top 3
@@ -319,7 +318,6 @@ export function SearchResultsPage() {
       </div>
     );
   }
-
   /* ----------------------------- Render ----------------------------- */
   return (
     <div className="min-h-screen bg-gray-50">
@@ -360,7 +358,7 @@ export function SearchResultsPage() {
             {/* Product Info */}
             <div className="flex-1 w-full">
               <h2 className="text-white mb-2 text-xl sm:text-2xl text-center sm:text-left">{mainProduct.name}</h2>
-              <div className="text-xs sm:text-sm text-white/80 mb-4 text-center sm:text-left">Launched {mainProduct.launchDate}</div>
+              <div className="text-xs sm:text-sm text-white/80 mb-4 text-center sm:text-left">{mainProduct.daysAgo}</div>
 
               {/* Score and Rating */}
               <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-3 sm:gap-6 mb-4 sm:mb-6">
@@ -380,31 +378,39 @@ export function SearchResultsPage() {
               {/* Quick Specs */}
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4">
                 <div className="flex items-start gap-2 border border-white/30 rounded-lg p-2 sm:p-3 bg-white/5">
-                  <Cpu className="w-4 h-4 sm:w-5 sm:h-5 text-white mt-0.5 flex-shrink-0" />
-                  <div>
-                    <div className="text-xs text-white/80 mb-1">Antutu Score</div>
-                    <div className="text-xs sm:text-sm text-white font-medium">{mainProduct.specs.antutu}</div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2 border border-white/30 rounded-lg p-2 sm:p-3 bg-white/5">
                   <Monitor className="w-4 h-4 sm:w-5 sm:h-5 text-white mt-0.5 flex-shrink-0" />
                   <div>
                     <div className="text-xs text-white/80 mb-1">Display</div>
-                    <div className="text-xs sm:text-sm text-white font-medium">{`${mainProduct.detailedSpecs.display.size.split(' ')[0]}"`}</div>
+                    <div className="text-xs sm:text-sm text-white font-medium">
+                      {`${mainProduct.detailedSpecs.display.size.split(' ')[0]}"`}
+                    </div>
+                    <div className="text-xs text-white/60">
+                      {`${mainProduct.detailedSpecs.display.resolution.split('pixels')[0]} p`}
+                    </div>
                   </div>
                 </div>
+
                 <div className="flex items-start gap-2 border border-white/30 rounded-lg p-2 sm:p-3 bg-white/5">
                   <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-white mt-0.5 flex-shrink-0" />
                   <div>
-                    <div className="text-xs text-white/80 mb-1">Camera</div>
-                    <div className="text-xs sm:text-sm text-white font-medium">{`${mainProduct.detailedSpecs.camera.rear.main.split(' ')[0]}MP`}</div>
+                    <div className="text-xs text-white/80 mb-1">Main Camera</div>
+                    <div className="text-xs sm:text-sm text-white font-medium">
+                      {(m => (m ? `${m} MP` : 'N/A'))(mainProduct.detailedSpecs.camera.rear.main?.match(/(\d+)\s*MP/i)?.[1])}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-start gap-2 border border-white/30 rounded-lg p-2 sm:p-3 bg-white/5">
                   <Battery className="w-4 h-4 sm:w-5 sm:h-5 text-white mt-0.5 flex-shrink-0" />
                   <div>
                     <div className="text-xs text-white/80 mb-1">Battery</div>
-                    <div className="text-xs sm:text-sm text-white font-medium">{mainProduct.detailedSpecs.battery.capacity}</div>
+                    <div className="text-xs sm:text-sm text-white font-medium">
+                      {`${mainProduct.detailedSpecs.battery.capacity.match(/(\d+)\s*mAh/)?.[1] ?? 'N/A'} mAh`}
+                    </div>
+                    <div className="text-xs text-white/60 flex">
+                      {(
+                        w => (w ? `${Math.max(...w.map(Number))}W` : 'N/A')
+                      )(mainProduct.detailedSpecs.battery.charging?.match(/\d+(?=W)/gi))}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-start gap-2 border border-white/30 rounded-lg p-2 sm:p-3 bg-white/5 col-span-2 sm:col-span-1">
@@ -412,6 +418,13 @@ export function SearchResultsPage() {
                   <div>
                     <div className="text-xs text-white/80 mb-1">Storage</div>
                     <div className="text-xs sm:text-sm text-white font-medium">{mainProduct.detailedSpecs.ramStorage.storage}</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 border border-white/30 rounded-lg p-2 sm:p-3 bg-white/5">
+                  <Cpu className="w-4 h-4 sm:w-5 sm:h-5 text-white mt-0.5 flex-shrink-0" />
+                  <div>
+                    <div className="text-xs text-white/80 mb-1">RAM</div>
+                    <div className="text-xs sm:text-sm text-white font-medium">{mainProduct.detailedSpecs.ramStorage.ram}</div>
                   </div>
                 </div>
               </div>
