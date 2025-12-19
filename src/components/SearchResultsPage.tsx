@@ -273,11 +273,6 @@ export function SearchResultsPage() {
           label: 'Operating System',
           getValue: (p: Product) =>
             p.detailedSpecs.os.version
-        },
-        {
-          label: 'Software Support',
-          getValue: (p: Product) =>
-            p.detailedSpecs.os.updates
         }
       ]
     }
@@ -335,10 +330,10 @@ export function SearchResultsPage() {
           <h1 className="text-3xl font-bold">
             {query ? `"${query}"` : 'All Products'}
           </h1>
-          <p className="text-gray-600">
+          {/* <p className="text-gray-600">
             {displayedProducts.length} results
             {priceMax > 0 && ` (Max ₹${priceMax.toLocaleString()})`}
-          </p>
+          </p> */}
         </div>
 
         {/* Featured Product - Updated UI */}
@@ -468,7 +463,7 @@ export function SearchResultsPage() {
             {/* View Full Specs Button */}
             <button
               onClick={() => navigate(`/product/${mainProduct.id}`)}
-              className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-white text-emerald-700 rounded-lg hover:bg-emerald-50 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base flex-shrink-0"
+              className="cursor-pointer w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-white text-emerald-700 rounded-lg hover:bg-emerald-50 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base flex-shrink-0"
             >
               View Full Specs
               <ChevronRight className="w-4 h-4" />

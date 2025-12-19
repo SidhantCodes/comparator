@@ -208,9 +208,9 @@ export function ProductDetailPage() {
                 />
               </div>
               <div className="text-center pt-3 border-t border-gray-100">
-                <div className="text-sm text-gray-600">Launched</div>
+                {/* <div className="text-sm text-gray-600">Launched</div> */}
                 <div className="text-gray-900 font-medium">
-                  {product.launchDate}
+                  {product.daysAgo}
                 </div>
               </div>
             </div>
