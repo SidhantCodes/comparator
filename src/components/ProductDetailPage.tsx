@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Star, ChevronLeft, ExternalLink } from 'lucide-react';
 
-import { Header } from './Header';
+// import { Header } from './Header';
 import { Footer } from './Footer';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
@@ -65,7 +65,7 @@ export function ProductDetailPage() {
   if (!product) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
+        {/* <Header /> */}
         <div className="max-w-7xl mx-auto px-4 py-16 text-center">
           <h2 className="text-xl font-semibold">Product not found</h2>
           <button
@@ -150,7 +150,7 @@ export function ProductDetailPage() {
   /* ----------------------------- Render ----------------------------- */
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      {/* <Header /> */}
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Back */}

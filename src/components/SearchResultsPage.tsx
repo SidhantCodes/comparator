@@ -14,7 +14,7 @@ import {
   Search,
 } from 'lucide-react';
 
-import { Header } from './Header';
+// import { Header } from './Header';
 import { Footer } from './Footer';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
@@ -291,7 +291,7 @@ export function SearchResultsPage() {
   if (!mainProduct) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
+        {/* <Header /> */}
         <div className="max-w-7xl mx-auto px-4 py-20 text-center">
           <h2 className="text-xl font-bold mb-2">
             No products found
@@ -316,7 +316,7 @@ export function SearchResultsPage() {
   /* ----------------------------- Render ----------------------------- */
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      {/* <Header /> */}
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Breadcrumb */}

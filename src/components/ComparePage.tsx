@@ -2,7 +2,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, Plus, Search, X } from 'lucide-react';
 
-import { Header } from './Header';
+// import { Header } from './Header';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
 import { endpoints } from '../api/client';
@@ -181,7 +181,7 @@ export function ComparePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      {/* <Header /> */}
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <button

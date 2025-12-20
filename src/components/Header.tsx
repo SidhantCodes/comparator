@@ -1,12 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Layers, User, LogOut } from 'lucide-react';
+import { Search, Layers, LogOut, User } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { endpoints } from '../api/client';
 import { adaptApiPhoneToProduct } from '../utils/adapter';
 import { Product } from '../data/mockData';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useAuth } from '../context/AuthContext';
-
+import { Avatar, AvatarFallback } from './ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,45 +19,36 @@ import {
 export function Header() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  if (!user) {
-    return null;
-  }
-
   const [searchQuery, setSearchQuery] = useState('');
-  const [showMobileSearch, setShowMobileSearch] = useState(false);
-
-  // Search state
   const [searchPool, setSearchPool] = useState<Product[]>([]);
   const [searchResults, setSearchResults] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const dropdownRef = useRef<HTMLFormElement | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const loadSearchPool = async () => {
       try {
-        const data = await endpoints.search();
-        setSearchPool(data.data.map(adaptApiPhoneToProduct));
+        const res = await endpoints.search(1, 200);
+        setSearchPool(res.data.data.map(adaptApiPhoneToProduct));
       } catch (error) {
         console.error('Failed to load search pool', error);
       }
     };
-    loadSearchPool();
-  }, []);
+    if (user) loadSearchPool();
+  }, [user]);
 
   useEffect(() => {
     if (!searchQuery.trim()) {
       setSearchResults([]);
       return;
     }
-
     const q = searchQuery.toLowerCase();
     const filtered = searchPool.filter(product =>
       product.name.toLowerCase().includes(q)
     );
-
     setSearchResults(filtered.slice(0, 8));
   }, [searchQuery, searchPool]);
 
+  // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -68,149 +59,96 @@ export function Header() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const performSearch = (queryText: string) => {
-    if (!queryText.trim()) return;
-    navigate(`/search?q=${encodeURIComponent(queryText)}`);
-    setSearchResults([]);
-    setShowMobileSearch(false);
-  };
-
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchResults.length > 0) {
-      performSearch(searchResults[0].name);
-    } else {
-      performSearch(searchQuery);
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+      setSearchResults([]);
     }
   };
 
+  const handleSelectProduct = (name: string) => {
+    setSearchQuery(name);
+    navigate(`/search?q=${encodeURIComponent(name)}`);
+    setSearchResults([]);
+  };
+
+  if (!user) return null;
+
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 py-4">
-        <div className="flex items-center justify-between gap-4 md:gap-8">
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 py-3">
+        <div className="flex items-center justify-between gap-8">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 md:gap-3 flex-shrink-0 group">
-            <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white p-2.5 rounded-xl shadow-sm group-hover:shadow-md transition-all">
-              <Layers className="w-4 h-4 md:w-5 md:h-5" />
+          <Link to="/" className="flex items-center gap-2 flex-shrink-0 group">
+            <div className="bg-emerald-600 text-white p-2 rounded-lg group-hover:bg-emerald-700 transition-colors">
+              <Layers className="w-5 h-5" />
             </div>
-            <span className="text-gray-900 text-base md:text-lg font-semibold">
-              PriceCompare
-            </span>
+            <span className="text-gray-900 text-xl font-bold tracking-tight">PriceCompare</span>
           </Link>
 
-          {/* Desktop Search */}
-          <form
-            onSubmit={handleSearchSubmit}
-            className="hidden md:block relative flex-1 max-w-xl"
-            ref={dropdownRef}
-          >
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          {/* Search Bar */}
+          <div className="flex-1 max-w-xl relative" ref={dropdownRef}>
+            <form onSubmit={handleSearchSubmit} className="relative group">
+              {/* Icon positioned at the start */}
+              {/* <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-emerald-600 transition-colors" /> */}
+              
               <input
                 type="text"
                 value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search phones..."
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200
-                           focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search for phones..."
+                className="w-full px-4 py-2 rounded-lg bg-gray-100 border-none focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-sm placeholder:text-gray-400"
               />
-            </div>
+            </form>
 
+            {/* Dropdown Results */}
             {searchResults.length > 0 && (
-              <SearchDropdown
-                results={searchResults}
-                onSelect={performSearch}
-              />
-            )}
-          </form>
-
-          {/* Right Section: Auth */}
-          <div className="flex items-center gap-4">
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger className="outline-none">
-                  <div className="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-full
-                                  flex items-center justify-center border border-emerald-200
-                                  hover:bg-emerald-200 transition-colors cursor-pointer">
-                    <User className="w-5 h-5" />
-                  </div>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold">My Account</span>
-                      <span className="text-xs text-gray-500 truncate">
-                        {user.email}
-                      </span>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={logout}
-                    className="text-red-600 cursor-pointer"
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50">
+                {searchResults.map((product) => (
+                  <button
+                    key={product.id}
+                    onClick={() => handleSelectProduct(product.name)}
+                    className="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-emerald-50 transition-colors border-b border-gray-50 last:border-0"
                   >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Link
-                to="/auth"
-                className="text-emerald-600 font-medium hover:text-emerald-700"
-              >
-                Login
-              </Link>
+                    <div className="w-10 h-10 flex-shrink-0">
+                      <ImageWithFallback src={product.image} className="w-full h-full object-contain" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">{product.name}</div>
+                      <div className="text-xs text-emerald-600 font-bold">₹{product.price.toLocaleString()}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
             )}
           </div>
+
+          {/* Profile Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="outline-none">
+              <Avatar className="h-9 w-9 border cursor-pointer hover:ring-2 hover:ring-emerald-500 transition-all">
+                <AvatarFallback className="bg-emerald-100 text-emerald-700">
+                  {user.email.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 mt-1">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">Account</p>
+                  <p className="text-xs leading-none text-muted-foreground truncate">{user.email}</p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={logout} className="text-red-600 cursor-pointer focus:bg-red-50 focus:text-red-700">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
-  );
-}
-
-function SearchDropdown({
-  results,
-  onSelect,
-}: {
-  results: Product[];
-  onSelect: (name: string) => void;
-}) {
-  return (
-    <div className="absolute mt-2 w-full bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden max-h-[400px] overflow-y-auto z-50">
-      {results.length > 0 ? (
-        results.map(product => (
-          <button
-            key={product.id}
-            onMouseDown={e => {
-              e.preventDefault();
-              onSelect(product.name);
-            }}
-            className="w-full text-left px-4 py-3 flex items-center gap-4 border-b border-gray-50 last:border-0
-                       hover:bg-emerald-50 transition-colors"
-          >
-            <div className="w-12 h-12 bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-center p-1 flex-shrink-0">
-              <ImageWithFallback
-                src={product.image}
-                alt={product.name}
-                className="object-contain"
-              />
-            </div>
-            <div className="flex-1">
-              <div className="text-sm font-medium text-gray-900">
-                {product.name}
-              </div>
-              <div className="text-xs text-emerald-600 font-bold mt-0.5">
-                ₹{product.price.toLocaleString()}
-              </div>
-            </div>
-          </button>
-        ))
-      ) : (
-        <div className="p-6 text-center text-sm text-gray-500">
-          No matches found for this search.
-        </div>
-      )}
-    </div>
   );
 }

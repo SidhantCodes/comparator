@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, TrendingUp, X } from 'lucide-react';
 
-import { Header } from './Header';
+// import { Header } from './Header';
 import { Footer } from './Footer';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
@@ -128,7 +128,7 @@ export function HomePage() {
   /* --------------------------------------------------------------------- */
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      {/* <Header /> */}
 
       <div className="relative bg-gradient-to-br from-emerald-900 via-teal-900 to-green-800 text-white py-32 px-4">
         <div className="max-w-7xl mx-auto">

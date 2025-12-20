@@ -5,16 +5,18 @@ import { Header } from './Header';
 export function ProtectedLayout() {
   const { user, loading } = useAuth();
 
-  if (loading) return null; // Or spinner
+  if (loading) return null;
 
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Header />
-      <Outlet />
-    </>
+      <main className="flex-1">
+        <Outlet />
+      </main>
+    </div>
   );
 }
