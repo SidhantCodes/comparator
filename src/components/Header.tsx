@@ -1,13 +1,27 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Layers } from 'lucide-react';
+import { Search, Layers, User, LogOut } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { endpoints } from '../api/client';
 import { adaptApiPhoneToProduct } from '../utils/adapter';
 import { Product } from '../data/mockData';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { useAuth } from '../context/AuthContext';
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
 
 export function Header() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  if (!user) {
+    return null;
+  }
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showMobileSearch, setShowMobileSearch] = useState(false);
@@ -15,79 +29,54 @@ export function Header() {
   // Search state
   const [searchPool, setSearchPool] = useState<Product[]>([]);
   const [searchResults, setSearchResults] = useState<Product[]>([]);
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const dropdownRef = useRef<HTMLFormElement | null>(null);
 
-  const searchRef = useRef<HTMLDivElement>(null);
-  const mobileSearchRef = useRef<HTMLDivElement>(null);
-
-  // Lazy-load search pool
-  const handleFocus = async () => {
-    setShowDropdown(true);
-
-    if (searchPool.length === 0) {
+  useEffect(() => {
+    const loadSearchPool = async () => {
       try {
-        const response = await endpoints.search(1, 100);
-        const adapted = response.data.data.map(adaptApiPhoneToProduct);
-        setSearchPool(adapted);
-      } catch (err) {
-        console.error('Failed to load header search pool', err);
+        const data = await endpoints.search();
+        setSearchPool(data.data.map(adaptApiPhoneToProduct));
+      } catch (error) {
+        console.error('Failed to load search pool', error);
       }
-    }
-  };
+    };
+    loadSearchPool();
+  }, []);
 
-  // Filter results
   useEffect(() => {
     if (!searchQuery.trim()) {
       setSearchResults([]);
       return;
     }
 
-    const filtered = searchPool
-      .filter(p =>
-        p.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-      .slice(0, 6);
+    const q = searchQuery.toLowerCase();
+    const filtered = searchPool.filter(product =>
+      product.name.toLowerCase().includes(q)
+    );
 
-    setSearchResults(filtered);
+    setSearchResults(filtered.slice(0, 8));
   }, [searchQuery, searchPool]);
 
-  // Click outside closes dropdown
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as Node;
-
-      if (
-        (searchRef.current && !searchRef.current.contains(target)) &&
-        (!mobileSearchRef.current || !mobileSearchRef.current.contains(target))
-      ) {
-        setShowDropdown(false);
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setSearchResults([]);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  /**
-   * UNIFORM BEHAVIOR: 
-   * Always navigate to the Search Results Page with the product name
-   */
   const performSearch = (queryText: string) => {
     if (!queryText.trim()) return;
-    
-    // Navigate to Search Results Page (which contains comparisons)
     navigate(`/search?q=${encodeURIComponent(queryText)}`);
-    
-    setSearchQuery(queryText);
-    setShowDropdown(false);
+    setSearchResults([]);
     setShowMobileSearch(false);
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // If we have results visible, pick the first one to ensure 
-    // "Enter" takes the user to the most relevant product
     if (searchResults.length > 0) {
       performSearch(searchResults[0].name);
     } else {
@@ -101,80 +90,80 @@ export function Header() {
         <div className="flex items-center justify-between gap-4 md:gap-8">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 md:gap-3 flex-shrink-0 group">
-            <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white p-2 md:p-2.5 rounded-xl shadow-sm group-hover:shadow-md transition-all">
+            <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white p-2.5 rounded-xl shadow-sm group-hover:shadow-md transition-all">
               <Layers className="w-4 h-4 md:w-5 md:h-5" />
             </div>
-            <span className="text-gray-900 text-lg md:text-xl font-semibold tracking-tight">
+            <span className="text-gray-900 text-base md:text-lg font-semibold">
               PriceCompare
             </span>
           </Link>
 
           {/* Desktop Search */}
-          <div className="flex-1 max-w-md hidden md:block ml-auto relative" ref={searchRef}>
-            <form onSubmit={handleSearchSubmit}>
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 z-10" />
-                <input
-                  value={searchQuery}
-                  onFocus={handleFocus}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  placeholder="Search for products..."
-                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl bg-white text-gray-900 placeholder:text-gray-400 shadow-sm transition-all
-                             focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                />
-              </div>
-            </form>
-
-            {showDropdown && searchQuery.trim() && (
-              <div className="absolute top-full left-0 right-0 mt-2 z-[100]">
-                <SearchDropdown
-                  results={searchResults}
-                  onSelect={(name) => performSearch(name)}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Mobile Toggle */}
-          <button
-            onClick={() => {
-              setShowMobileSearch(prev => !prev);
-              setShowDropdown(false);
-            }}
-            className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          <form
+            onSubmit={handleSearchSubmit}
+            className="hidden md:block relative flex-1 max-w-xl"
+            ref={dropdownRef}
           >
-            <Search className="w-5 h-5" />
-          </button>
-        </div>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Search phones..."
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200
+                           focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              />
+            </div>
 
-        {/* Mobile Search */}
-        {showMobileSearch && (
-          <div className="mt-4 relative md:hidden" ref={mobileSearchRef}>
-            <form onSubmit={handleSearchSubmit}>
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 z-10" />
-                <input
-                  autoFocus
-                  value={searchQuery}
-                  onFocus={handleFocus}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  placeholder="Search for products..."
-                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg bg-gray-50
-                             focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                />
-              </div>
-            </form>
+            {searchResults.length > 0 && (
+              <SearchDropdown
+                results={searchResults}
+                onSelect={performSearch}
+              />
+            )}
+          </form>
 
-            {showDropdown && searchQuery.trim() && (
-              <div className="absolute top-full left-0 right-0 mt-2 z-[100]">
-                <SearchDropdown
-                  results={searchResults}
-                  onSelect={(name) => performSearch(name)}
-                />
-              </div>
+          {/* Right Section: Auth */}
+          <div className="flex items-center gap-4">
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger className="outline-none">
+                  <div className="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-full
+                                  flex items-center justify-center border border-emerald-200
+                                  hover:bg-emerald-200 transition-colors cursor-pointer">
+                    <User className="w-5 h-5" />
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-semibold">My Account</span>
+                      <span className="text-xs text-gray-500 truncate">
+                        {user.email}
+                      </span>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={logout}
+                    className="text-red-600 cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link
+                to="/auth"
+                className="text-emerald-600 font-medium hover:text-emerald-700"
+              >
+                Login
+              </Link>
             )}
           </div>
-        )}
+        </div>
       </div>
     </header>
   );
@@ -188,28 +177,27 @@ function SearchDropdown({
   onSelect: (name: string) => void;
 }) {
   return (
-    <div className="bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden max-h-[400px] overflow-y-auto">
+    <div className="absolute mt-2 w-full bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden max-h-[400px] overflow-y-auto z-50">
       {results.length > 0 ? (
         results.map(product => (
           <button
             key={product.id}
             onMouseDown={e => {
               e.preventDefault();
-              // Pass the product name instead of ID to trigger the search results page
               onSelect(product.name);
             }}
             className="w-full text-left px-4 py-3 flex items-center gap-4 border-b border-gray-50 last:border-0
                        hover:bg-emerald-50 transition-colors"
           >
-            <div className="w-12 h-12 bg-gray-50 border border-gray-100 rounded-lg flex items-center justify-center p-1 flex-shrink-0">
+            <div className="w-12 h-12 bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-center p-1 flex-shrink-0">
               <ImageWithFallback
                 src={product.image}
-                className="max-w-full max-h-full object-contain"
+                alt={product.name}
+                className="object-contain"
               />
             </div>
-
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold text-gray-900 truncate">
+            <div className="flex-1">
+              <div className="text-sm font-medium text-gray-900">
                 {product.name}
               </div>
               <div className="text-xs text-emerald-600 font-bold mt-0.5">

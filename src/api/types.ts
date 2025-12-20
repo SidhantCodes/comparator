@@ -60,3 +60,14 @@ export interface ApiCompareResponse {
   winner_model: string;
   phones: ApiComparePhone[];
 }
+
+export interface AuthResponse {
+  access_token: string;
+  token_type: string;
+  role: string;
+}
+
+export interface UserProfile {
+  email: string;
+  role: string;
+}
