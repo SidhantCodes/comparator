@@ -50,7 +50,6 @@ export function HomePage() {
       mounted = false;
     };
   }, []);
-  console.log(searchPool)
 
   /* ------------------------ Search Filtering Logic ------------------------ */
   useEffect(() => {

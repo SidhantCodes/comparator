@@ -46,7 +46,7 @@ export function SearchResultsPage() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await endpoints.search(1, 100);
+        const response = await endpoints.search(1, 200);
         const adapted = response.data.data.map(adaptApiPhoneToProduct);
         if (!mounted) return;
 
