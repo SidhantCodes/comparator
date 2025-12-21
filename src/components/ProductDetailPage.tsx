@@ -29,8 +29,7 @@ export function ProductDetailPage() {
         setLoading(true);
         // We fetch from the "Main API" (search endpoint) 
         // which contains the search_specs.price_inr
-        const response = await endpoints.search(1, 100); 
-        
+        const response = await endpoints.search(1, 200);         
         if (mounted && response.data?.data) {
           const apiPhones: ApiPhone[] = response.data.data;
           const foundPhone = apiPhones.find((p) => p._id === id);
