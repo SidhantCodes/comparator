@@ -14,7 +14,6 @@ import {
   Search,
 } from 'lucide-react';
 
-// import { Header } from './Header';
 import { Footer } from './Footer';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
@@ -330,29 +329,25 @@ export function SearchResultsPage() {
           <h1 className="text-3xl font-bold">
             {query ? `"${query}"` : 'All Products'}
           </h1>
-          {/* <p className="text-gray-600">
-            {displayedProducts.length} results
-            {priceMax > 0 && ` (Max ₹${priceMax.toLocaleString()})`}
-          </p> */}
         </div>
 
         {/* Featured Product - Updated UI */}
         <div className="rounded-xl shadow-sm p-4 sm:p-6 mb-6 sm:mb-8 border border-emerald-700 relative" style={{ backgroundColor: '#009966' }}>
-          <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6 mb-6">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
             {/* Product Image */}
             <div className="flex-shrink-0 mx-auto sm:mx-0">
-              <div className="w-32 h-40 sm:w-40 sm:h-52 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center border border-gray-200">
-                 <ImageWithFallback
+              <div className="w-36 h-44 sm:w-40 sm:h-52 bg-white/95 rounded-2xl flex items-center justify-center border border-white/20 p-4 shadow-inner">
+                <ImageWithFallback
                     src={mainProduct.image || ''}
                     alt={mainProduct.name}
-                    className="w-20 h-28 sm:w-24 sm:h-36 object-contain mix-blend-multiply"
+                    className="w-full h-full object-contain mix-blend-multiply"
                   />
               </div>
             </div>
-
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:justify-between">
             {/* Product Info */}
-            <div className="flex-1 w-full">
-              <h2 className="text-white mb-2 text-xl sm:text-2xl text-center sm:text-left">{mainProduct.name}</h2>
+            <div className="flex-1 w-full text-center sm:text-left order-1">
+              <h2 className="text-white mb-1 text-2xl sm:text-3xl font-bold">{mainProduct.name}</h2>
               <div className="text-xs sm:text-sm text-white/80 mb-4 text-center sm:text-left">{mainProduct.daysAgo}</div>
 
               {/* Score and Rating */}
@@ -371,7 +366,7 @@ export function SearchResultsPage() {
               </div>
 
               {/* Quick Specs */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                 <div className="flex items-start gap-2 border border-white/30 rounded-lg p-2 sm:p-3 bg-white/5">
                   <Monitor className="w-4 h-4 sm:w-5 sm:h-5 text-white mt-0.5 flex-shrink-0" />
                   <div>
@@ -408,14 +403,18 @@ export function SearchResultsPage() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-start gap-2 border border-white/30 rounded-lg p-2 sm:p-3 bg-white/5 col-span-2 sm:col-span-1">
+
+                <div className="flex items-start gap-2 border border-white/30 rounded-lg p-2 sm:p-3 bg-white/5">
                   <HardDrive className="w-4 h-4 sm:w-5 sm:h-5 text-white mt-0.5 flex-shrink-0" />
                   <div>
                     <div className="text-xs text-white/80 mb-1">Storage</div>
-                    <div className="text-xs sm:text-sm text-white font-medium">{mainProduct.detailedSpecs.ramStorage.storage}</div>
+                    <div className="text-xs sm:text-sm text-white font-medium">
+                      {mainProduct.detailedSpecs.ramStorage.storage}
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-start gap-2 border border-white/30 rounded-lg p-2 sm:p-3 bg-white/5">
+
+                <div className="flex items-start gap-2 border border-white/30 rounded-lg p-2 sm:p-3 bg-white/5 col-span-2 sm:col-span-1">
                   <Cpu className="w-4 h-4 sm:w-5 sm:h-5 text-white mt-0.5 flex-shrink-0" />
                   <div>
                     <div className="text-xs text-white/80 mb-1">RAM</div>
@@ -426,59 +425,69 @@ export function SearchResultsPage() {
             </div>
 
             {/* Main Price Display */}
-            <div className="flex-shrink-0 text-center sm:text-right w-full sm:w-auto">
+            <div className="w-full sm:w-auto text-center sm:text-right order-3 sm:order-2 mt-4 sm:mt-0 mt-6 sm:mt-0">
               <div className="text-2xl sm:text-3xl text-white mb-1 font-semibold">₹{mainProduct.price.toLocaleString()}</div>
               <div className="text-xs sm:text-sm text-white/80 mb-3 sm:mb-4">{mainProduct.retailer.name}</div>
             </div>
           </div>
+          </div>
 
           {/* Price Comparison Section */}
-          <div className="border-t border-white/20 pt-4 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
-            <div className="flex-1">
-              <h3 className="text-white/90 mb-3 text-sm">Available at:</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                {mainProduct.priceComparison && mainProduct.priceComparison.map((retailer, index) => (
+          <div className="border-t border-white/20 pt-6 mt-6 sm:items-end justify-between gap-4">
+            <div className="flex mt-2 gap-2 sm:w-full items-center justify-between">
+              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                {mainProduct.priceComparison.map((link, index) => (
                   <a
                     key={index}
-                    href={retailer.url}
+                    href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between bg-white/10 hover:bg-white/20 rounded-lg p-2.5 sm:p-3 border border-white/20 transition-all group"
+                    className="
+                      flex items-center justify-between
+                      bg-white
+                      px-4 py-3
+                      rounded-lg
+                      shadow-sm
+                      w-full sm:w-auto
+                    "
                   >
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-white rounded flex items-center justify-center flex-shrink-0">
-                        <span className="text-xs font-semibold text-emerald-700">{retailer.retailer.charAt(0)}</span>
-                      </div>
-                      <div>
-                        <div className="text-xs text-white/90 font-medium">{retailer.retailer}</div>
-                        <div className="text-xs text-white font-semibold">₹{retailer.price.toLocaleString()}</div>
-                      </div>
-                    </div>
-                    <ExternalLink className="w-3 h-3 text-white/60 group-hover:text-white/90 transition-colors" />
+                    <img src={link.logo} height={20} width={20}/>
+                    <span className="text-emerald-700 font-bold">₹{link.price.toLocaleString()}</span>
+                    <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
                   </a>
                 ))}
               </div>
+              <button
+                onClick={() => navigate(`/product/${mainProduct.id}`)}
+                className="
+                  w-full sm:w-auto
+                  px-3 py-3
+                  bg-emerald-700/30
+                  text-white
+                  border border-white/30
+                  rounded-lg
+                  flex items-center justify-center gap-2
+                  hover:cursor-pointer
+                "
+              >
+                View Full Specs
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
 
-            {/* View Full Specs Button */}
-            <button
-              onClick={() => navigate(`/product/${mainProduct.id}`)}
-              className="cursor-pointer w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-white text-emerald-700 rounded-lg hover:bg-emerald-50 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base flex-shrink-0"
-            >
-              View Full Specs
-              <ChevronRight className="w-4 h-4" />
-            </button>
+            
           </div>
         </div>
 
         {/* Comparison Tool */}
         <div>
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-center mb-4 gap-2">
             <div>
-              <h2 className="text-xl font-medium">
+              <h2 className="text-sm sm:text-xl font-medium mr-1">
                 Compare with Similar Products
               </h2>
-              <h5 className='text-gray-700'>
+              <h5 className="hidden md:block text-gray-700 text-sm">
+
                 Side-by-side comparison of specifications and pricing
               </h5>
             </div>
@@ -488,7 +497,7 @@ export function SearchResultsPage() {
               className="relative max-w-lg flex items-center border rounded-lg px-2"
               ref={searchContainerRef}
             >
-              <Search className="text-gray-400" />
+              <Search className="text-gray-400 h-5 w-5" />
               <input
                 value={searchInput}
                 onChange={e => {
@@ -496,7 +505,7 @@ export function SearchResultsPage() {
                   setShowDropdown(true);
                 }}
                 onFocus={() => setShowDropdown(true)}
-                placeholder="Add phone to compare…"
+                placeholder="Add phone to compare"
                 className="w-full rounded-lg px-4 py-2 placeholder:text-gray-400 focus:outline-none"
               />
 
