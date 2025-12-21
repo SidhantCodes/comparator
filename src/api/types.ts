@@ -10,6 +10,11 @@ export interface ApiPhoneSearchSpec {
   chipset: string;
 }
 
+export interface AffiliateLinks {
+  amazon?: string;
+  flipkart?: string;
+}
+
 export interface ApiPhone {
   _id: string;
   brand: string;
@@ -19,6 +24,7 @@ export interface ApiPhone {
   search_specs: ApiPhoneSearchSpec;
   tech_score: number;
   specs?: Record<string, any>; 
+  affiliate_links?: AffiliateLinks
 }
 
 export interface ApiSearchResponse {

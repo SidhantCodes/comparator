@@ -60,6 +60,38 @@ export const adaptApiPhoneToProduct = (apiPhone: ApiPhone): Product => {
   const antutu = extractAntutu(apiPhone);
   const mainCamera = extractMainCamera(apiPhone);
 
+  const priceComparison = [];
+  
+  if (apiPhone.affiliate_links?.amazon) {
+    priceComparison.push({
+      retailer: 'Amazon',
+      price: price,
+      logo: 'https://www.google.com/s2/favicons?domain=amazon.in&sz=128',
+      availability: 'In Stock',
+      url: apiPhone.affiliate_links.amazon
+    });
+  }
+
+  if (apiPhone.affiliate_links?.flipkart) {
+    priceComparison.push({
+      retailer: 'Flipkart',
+      price: price,
+      logo: 'https://www.google.com/s2/favicons?domain=flipkart.com&sz=128',
+      availability: 'In Stock',
+      url: apiPhone.affiliate_links.flipkart
+    });
+  }
+
+  if (priceComparison.length === 0) {
+    priceComparison.push({
+      retailer: 'Market Price',
+      price: price,
+      logo: '🏷️',
+      availability: 'Check Local',
+      url: apiPhone.url
+    });
+  }
+
   return {
     id: apiPhone._id,
     name: apiPhone.model_name,
@@ -86,8 +118,8 @@ export const adaptApiPhoneToProduct = (apiPhone: ApiPhone): Product => {
     launchDate: apiPhone.search_specs.release_year.toString(),
 
     retailer: {
-      name: 'Market Price',
-      logo: '🏷️'
+      name: priceComparison[0].retailer,
+      logo: priceComparison[0].logo
     },
 
     specs: {
@@ -154,16 +186,8 @@ export const adaptApiPhoneToProduct = (apiPhone: ApiPhone): Product => {
           : 'Standard support'
       }
     },
-
-    priceComparison: [
-      {
-        retailer: 'Market Price',
-        price: price || 0,
-        logo: '🏷️',
-        availability: 'Check local availability',
-        url: apiPhone.url
-      }
-    ]
+    
+    priceComparison,
   };
 };
 
