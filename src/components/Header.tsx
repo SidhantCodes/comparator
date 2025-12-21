@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Layers, LogOut } from 'lucide-react';
+import { Layers, LogOut, User } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { endpoints } from '../api/client';
 import { adaptApiPhoneToProduct } from '../utils/adapter';
@@ -97,9 +97,10 @@ export function Header() {
             className="flex items-center gap-2 flex-shrink-0 group"
           >
             <div className="bg-emerald-600 text-white p-2 rounded-lg group-hover:bg-emerald-700 transition-colors">
-              <Layers className="w-5 h-5" />
+              <Layers className="w-3 h-3 sm:h-5 sm:w-5" />
             </div>
-            <span className="text-gray-900 text-xl font-bold tracking-tight">
+            {/* <span className="text-gray-900 text-xl font-bold tracking-tight"> */}
+            <span className="sm:block text-gray-900 text-sm sm:text-xl font-bold tracking-tight">
               PriceCompare
             </span>
           </Link>
@@ -148,26 +149,41 @@ export function Header() {
           </div>
 
           {/* Auth Section */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {user ? (
               <DropdownMenu>
-                <DropdownMenuTrigger className="outline-none">
-                  <Avatar className="h-9 w-9 border cursor-pointer hover:ring-2 hover:ring-emerald-500 transition-all">
-                    <AvatarFallback className="bg-emerald-100 text-emerald-700">
-                      {user.email.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 rounded-full bg-white px-2 py-1 hover:bg-emerald-50 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <Avatar className="h-9 w-9 border">
+                      <AvatarFallback className="bg-emerald-100 text-emerald-700">
+                        <User className="h-4 w-4" />
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <span className="hidden sm:block max-w-[140px] truncate text-sm font-medium text-emerald-700">
+                      {user.email}
+                    </span>
+                  </button>
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent align="end" className="w-56 mt-1">
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        Account
-                      </p>
-                      <p className="text-xs leading-none text-muted-foreground truncate">
-                        {user.email}
-                      </p>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-72 rounded-2xl bg-white p-2 shadow-xl border"
+                >
+                  <DropdownMenuLabel className="px-4 py-3 font-normal">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                        <User className="h-4 w-4" />
+                      </div>
+
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-xs text-muted-foreground">
+                          Signed in as
+                        </span>
+                        <span className="text-sm font-medium truncate">
+                          {user.email}
+                        </span>
+                      </div>
                     </div>
                   </DropdownMenuLabel>
 
@@ -175,23 +191,23 @@ export function Header() {
 
                   <DropdownMenuItem
                     onClick={logout}
-                    className="text-red-600 cursor-pointer"
+                    className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer"
                   >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    <LogOut className="h-4 w-4" />
+                    Log out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <Button
-                variant="outline"
-                onClick={() => navigate('/auth')}
-                className="border-emerald-600 text-emerald-600 hover:bg-emerald-50"
+                onClick={() => navigate("/auth")}
+                className="rounded-full bg-emerald-600 px-5 text-white hover:bg-emerald-700 transition-colors"
               >
-                Sign In
+                Sign in
               </Button>
             )}
           </div>
+
         </div>
       </div>
     </header>
