@@ -12,6 +12,15 @@ import { endpoints } from "../api/client"
 import { adaptApiPhoneToProduct } from "../utils/adapter"
 import type { Product } from "../data/mockData"
 
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "./ui/breadcrumb"
+
 export function SearchResultsPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -277,10 +286,22 @@ export function SearchResultsPage() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <div className="mb-6">
-          <div className="text-sm text-gray-500 mb-1">
-            Home / Search / <span className="text-gray-900">{query || "All Products"}</span>
-          </div>
-          <h1 className="text-3xl font-bold">{query ? `"${query}"` : "All Products"}</h1>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/">Home</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/">Search</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>{query || "All Products"}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          <h1 className="text-3xl font-bold mt-2">{query ? `"${query}"` : "All Products"}</h1>
         </div>
 
         {/* Featured Product - Updated UI */}
