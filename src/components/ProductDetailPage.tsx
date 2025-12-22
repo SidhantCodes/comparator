@@ -4,7 +4,6 @@ import { useParams, useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { Star, ChevronLeft, ExternalLink } from "lucide-react"
 
-import { Footer } from "./Footer"
 import { ImageWithFallback } from "./figma/ImageWithFallback"
 
 import { endpoints } from "../api/client"
@@ -65,7 +64,6 @@ export function ProductDetailPage() {
             Go back
           </button>
         </div>
-        <Footer />
       </div>
     )
   }
@@ -335,8 +333,6 @@ export function ProductDetailPage() {
           </p>
         </div>
       </div>
-
-      <Footer />
     </div>
   )
 }

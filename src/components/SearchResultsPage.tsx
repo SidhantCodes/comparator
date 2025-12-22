@@ -4,7 +4,6 @@ import { useSearchParams, useNavigate } from "react-router-dom"
 import { useState, useEffect, useRef } from "react"
 import { Plus, Star, Cpu, Monitor, Camera, Battery, HardDrive, ExternalLink, ChevronRight, Search } from "lucide-react"
 
-import { Footer } from "./Footer"
 import { ImageWithFallback } from "./figma/ImageWithFallback"
 import { ComparisonTable, type ComparisonCategory } from "./ComparisonTable"
 
@@ -274,7 +273,6 @@ export function SearchResultsPage() {
             Go Home
           </button>
         </div>
-        <Footer />
       </div>
     )
   }
@@ -517,8 +515,6 @@ export function SearchResultsPage() {
           />
         </div>
       </div>
-
-      <Footer />
     </div>
   )
 }

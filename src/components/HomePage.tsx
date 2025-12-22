@@ -7,8 +7,6 @@ import Slider from 'react-slick'; // Import Slider
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-// import { Header } from './Header';
-import { Footer } from './Footer';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
 import { endpoints } from '../api/client';
@@ -372,9 +370,6 @@ export function HomePage() {
           ))}
         </Slider>
       </div>
-      {/* ================================================================ */}
-
-      <Footer />
     </div>
   );
 }

@@ -10,6 +10,7 @@ import { SearchResultsPage } from './components/SearchResultsPage';
 import { ProductDetailPage } from './components/ProductDetailPage';
 import { ComparePage } from './components/ComparePage';
 import { Header } from './components/Header'; // Import Header here
+import { Footer } from './components/Footer';
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
             {/* Add routes here that strictly require login */}
           </Route>
         </Routes>
+        <Footer />
       </Router>
     </AuthProvider>
   );
