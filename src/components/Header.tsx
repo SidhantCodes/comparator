@@ -100,9 +100,10 @@ export function Header() {
               <Layers className="w-3 h-3 sm:h-5 sm:w-5" />
             </div>
             {/* <span className="text-gray-900 text-xl font-bold tracking-tight"> */}
-            <span className="sm:block text-gray-900 text-sm sm:text-xl font-bold tracking-tight">
+            <span className="sm:block text-gray-900 text-xs sm:text-xl font-bold tracking-tight">
               PriceCompare
             </span>
+            
           </Link>
 
           {/* Search Bar (available to everyone) */}

@@ -11,6 +11,7 @@ import { adaptApiPhoneToProduct } from "../utils/adapter"
 import type { Product } from "../data/mockData"
 import type { ApiPhone } from "../api/types"
 import { CardDiscountPill } from "./CardDiscountPillProps"
+import { ExpertReviews } from "./ExpertReviews"
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -277,6 +278,16 @@ export function ProductDetailPage() {
             </div>
           </div>
         </div>
+
+        {product.expertData && product.expertData.sources.length > 0 && (
+          <div className="mb-10">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <span className="w-2 h-8 bg-emerald-500 rounded-full"></span>
+              Expert Reviews
+            </h2>
+            <ExpertReviews data={product.expertData} />
+          </div>
+        )}
 
         {/* Price Comparison Section at the Bottom */}
         <div className="bg-white rounded-2xl shadow-sm p-8 border border-gray-100 mt-8">

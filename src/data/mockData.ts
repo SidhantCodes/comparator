@@ -73,4 +73,14 @@ export interface Product {
     availability: string;
     url: string;
   }>;
+  expertData?: {
+    averageScore: number;
+    count: number;
+    sources: Array<{
+      name: string;
+      score: number; // Normalized to 5-star scale for UI
+      originalScore: number;
+      url: string;
+    }>;
+  };
 }

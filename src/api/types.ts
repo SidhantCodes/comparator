@@ -1,5 +1,17 @@
 export type DeviceCategory = 'phone' | 'watch' | 'tablet';
 
+export interface ExpertSource {
+  site: string;
+  score: number;
+  url: string;
+}
+
+export interface ExpertView {
+  score_avg: number;
+  review_count: number;
+  sources: ExpertSource[];
+}
+
 export interface ApiPhoneSearchSpec {
   ram_gb: number;
   storage_gb: number;
@@ -28,6 +40,7 @@ export interface ApiPhone {
   specs?: Record<string, any>; 
   affiliate_links?: AffiliateLinks;
   category: DeviceCategory;
+  expert_view?: ExpertView;
 }
 
 export interface ApiSearchResponse {

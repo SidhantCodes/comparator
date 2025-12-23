@@ -92,6 +92,17 @@ export const adaptApiPhoneToProduct = (apiPhone: ApiPhone): Product => {
     });
   }
 
+  const expertData = apiPhone.expert_view ? {
+    averageScore: apiPhone.expert_view.score_avg / 2, // 8.5/10 -> 4.25/5
+    count: apiPhone.expert_view.review_count,
+    sources: apiPhone.expert_view.sources.map(s => ({
+      name: s.site,
+      score: s.score / 2, // Normalize for stars
+      originalScore: s.score,
+      url: s.url
+    }))
+  } : undefined;
+
   return {
     id: apiPhone._id,
     name: apiPhone.model_name,
@@ -185,8 +196,10 @@ export const adaptApiPhoneToProduct = (apiPhone: ApiPhone): Product => {
           : 'Standard support'
       }
     },
-    
+
     priceComparison,
+    
+    expertData,
   };
 };
 
