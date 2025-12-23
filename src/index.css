@@ -2839,3 +2839,44 @@ html {
     opacity: .5;
   }
 }
+
+/* ================= Shared Carousel Dots (Emerald) ================= */
+
+.carousel-dots .slick-dots {
+  bottom: -40px;
+}
+
+.carousel-dots .slick-dots li {
+  width: 14px;
+  height: 14px;
+  margin: 0 6px;
+}
+
+.carousel-dots .slick-dots li button {
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  position: relative;
+}
+
+.carousel-dots .slick-dots li button:before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background-color: #999999;
+  border-radius: 9999px;
+  opacity: 1;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: all 0.2s ease;
+}
+
+/* Active dot */
+.carousel-dots .slick-dots li.slick-active button:before {
+  background-color: #064E3B;
+  width: 12px;
+  height: 12px;
+  top: 1px;
+  left: 1px;
+}

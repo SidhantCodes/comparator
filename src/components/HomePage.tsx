@@ -12,6 +12,9 @@ import { ImageWithFallback } from './figma/ImageWithFallback';
 import { endpoints } from '../api/client';
 import { adaptApiPhoneToProduct } from '../utils/adapter';
 import { Product } from '../data/mockData';
+import { TopProducts } from './TopProducts';
+import { ReviewsCarousel } from './ReviewsCarousel';
+
 
 export function HomePage() {
   const navigate = useNavigate();
@@ -21,6 +24,9 @@ export function HomePage() {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+
+  const [randomProducts, setRandomProducts] = useState<Product[]>([]);
+
 
   /* ----------------------- Search Suggestion State ----------------------- */
   const [searchPool, setSearchPool] = useState<Product[]>([]);
@@ -63,7 +69,7 @@ export function HomePage() {
   ];
 
   const sliderSettings = {
-    // dots: true,
+    dots: true,
     infinite: true,
     speed: 500,
     slidesToShow: 3,
@@ -80,7 +86,7 @@ export function HomePage() {
           slidesToShow: 2,
           slidesToScroll: 1,
           infinite: true,
-          // dots: true,
+          dots: true,
           autoplay: true,
           autoplaySpeed: 3000,
           arrows: false
@@ -101,6 +107,7 @@ export function HomePage() {
     ]
   };
 
+
   /* ----------------------------- Fetch Products ----------------------------- */
   useEffect(() => {
     let mounted = true;
@@ -113,6 +120,8 @@ export function HomePage() {
         if (mounted) {
           setProducts(adapted.slice(0, 20));
           setSearchPool(adapted);
+          const shuffled = [...adapted].sort(() => 0.5 - Math.random());
+          setRandomProducts(shuffled.slice(0, 20));
         }
       } catch (error) {
         console.error('Failed to fetch products', error);
@@ -199,6 +208,12 @@ export function HomePage() {
     products.length > 0
       ? products.slice(0, 5).map(p => p.name)
       : ['iPhone 16', 'Samsung S25', 'Pixel 9'];
+
+
+  const chunkedProducts: Product[][] = [];
+  for (let i = 0; i < randomProducts.length; i += 6) {
+    chunkedProducts.push(randomProducts.slice(i, i + 6));
+  }
 
   /* --------------------------------------------------------------------- */
   return (
@@ -346,30 +361,10 @@ export function HomePage() {
       </div>
 
       {/* ======================= REVIEWS SECTION ======================= */}
-      <div className="max-w-7xl mx-auto px-4 pt-20 pb-10">
-        <h2 className="text-gray-900 text-3xl mb-8">Reviews</h2>
+      <ReviewsCarousel />
 
-        <Slider {...sliderSettings}>
-          {reviews.map((review, index) => (
-            <div key={index} className="px-3">
-              <div className="bg-white rounded-xl overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1 border border-gray-100 cursor-pointer">
-                <div className="aspect-video relative overflow-hidden bg-gray-100">
-                  <ImageWithFallback
-                    src={review.image}
-                    alt={review.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="p-5">
-                  <span className="text-xs text-gray-500 uppercase tracking-wide">Reviews</span>
-                  <h3 className="text-gray-900 mt-2 mb-3 leading-snug">{review.title}</h3>
-                  <p className="text-sm text-gray-500">{review.date}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </Slider>
-      </div>
+      {/* ======================= Top Products to Compare ======================= */}
+      <TopProducts />
     </div>
   );
 }
