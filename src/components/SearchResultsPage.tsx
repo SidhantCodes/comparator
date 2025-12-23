@@ -2,7 +2,7 @@
 
 import { useSearchParams, useNavigate } from "react-router-dom"
 import { useState, useEffect, useRef } from "react"
-import { Plus, Star, Cpu, Monitor, Camera, Battery, HardDrive, ExternalLink, ChevronRight, Search } from "lucide-react"
+import { Plus, Search } from "lucide-react"
 
 import { ImageWithFallback } from "./figma/ImageWithFallback"
 import { ComparisonTable, type ComparisonCategory } from "./ComparisonTable"
@@ -19,7 +19,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "./ui/breadcrumb"
+import { Button } from "./ui/button"
 
+import { FeaturedProductCard } from "./FeaturedProductCard"
 export function SearchResultsPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -252,6 +254,34 @@ export function SearchResultsPage() {
         },
       ],
     },
+    
+    {
+      title: "Price",
+      rows: [
+        {
+          label: "Price",
+          getValue: (product) => `₹${product.price.toLocaleString()}`,
+        },
+      ],
+    },
+    {
+      title: "", // Empty title so it looks like a footer action
+      rows: [
+        {
+          label: "Full Details",
+          getValue: (p: Product) => (
+            <Button
+              variant="link"
+              onClick={() => navigate(`/product/${p.id}`)}
+              className="cursor-pointer border border-black rounded-lg hover:bg-emerald-700 hover:text-white transition-all duration-200 ease-out"
+              // className="w-full py-2 px-4 bg-emerald-50 text-emerald-700 font-semibold rounded-lg border border-emerald-200 hover:bg-emerald-600 hover:text-white transition-all duration-200 text-sm"
+            >
+              View Full Specs
+            </Button>
+          ),
+        },
+      ],
+    },
   ]
 
   /* ----------------------------- States ----------------------------- */
@@ -303,161 +333,7 @@ export function SearchResultsPage() {
         </div>
 
         {/* Featured Product - Updated UI */}
-        <div
-          className="rounded-xl shadow-sm p-4 sm:p-6 mb-6 sm:mb-8 border border-emerald-700 relative"
-          style={{ backgroundColor: "#009966" }}
-        >
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
-            {/* Product Image */}
-            <div className="flex-shrink-0 mx-auto sm:mx-0">
-              <div className="w-36 h-44 sm:w-40 sm:h-52 bg-white/95 rounded-2xl flex items-center justify-center border border-white/20 p-4 shadow-inner">
-                <ImageWithFallback
-                  src={mainProduct.image || ""}
-                  alt={mainProduct.name}
-                  className="w-full h-full object-contain mix-blend-multiply"
-                />
-              </div>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:justify-between">
-              {/* Product Info */}
-              <div className="flex-1 w-full text-center sm:text-left order-1">
-                <h2 className="text-white mb-1 text-2xl sm:text-3xl font-bold">{mainProduct.name}</h2>
-                <div className="text-xs sm:text-sm text-white/80 mb-4 text-center sm:text-left">
-                  {mainProduct.daysAgo}
-                </div>
-
-                {/* Score and Rating */}
-                <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-3 sm:gap-6 mb-4 sm:mb-6">
-                  <div className="flex items-center gap-2">
-                    <div className="bg-white text-emerald-700 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border border-white">
-                      <span className="text-lg sm:text-xl font-semibold">{mainProduct.beebomScore}</span>
-                      <span className="text-xs ml-1">Score</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-400 text-yellow-400" />
-                    <span className="text-white font-medium text-base sm:text-lg">{mainProduct.rating}</span>
-                    <span className="text-white/80 text-sm sm:text-base">({mainProduct.reviews} Ratings)</span>
-                  </div>
-                </div>
-
-                {/* Quick Specs */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-                  <div className="flex items-start gap-2 border border-white/30 rounded-lg p-2 sm:p-3 bg-white/5">
-                    <Monitor className="w-4 h-4 sm:w-5 sm:h-5 text-white mt-0.5 flex-shrink-0" />
-                    <div>
-                      <div className="text-xs text-white/80 mb-1">Display</div>
-                      <div className="text-xs sm:text-sm text-white font-medium">
-                        {`${mainProduct.detailedSpecs.display.size.split(" ")[0]}"`}
-                      </div>
-                      <div className="text-xs text-white/60">
-                        {`${mainProduct.detailedSpecs.display.resolution.split("pixels")[0]} p`}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-2 border border-white/30 rounded-lg p-2 sm:p-3 bg-white/5">
-                    <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-white mt-0.5 flex-shrink-0" />
-                    <div>
-                      <div className="text-xs text-white/80 mb-1">Main Camera</div>
-                      <div className="text-xs sm:text-sm text-white font-medium">
-                        {((m) => (m ? `${m} MP` : "N/A"))(
-                          mainProduct.detailedSpecs.camera.rear.main?.match(/(\d+)\s*MP/i)?.[1],
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2 border border-white/30 rounded-lg p-2 sm:p-3 bg-white/5">
-                    <Battery className="w-4 h-4 sm:w-5 sm:h-5 text-white mt-0.5 flex-shrink-0" />
-                    <div>
-                      <div className="text-xs text-white/80 mb-1">Battery</div>
-                      <div className="text-xs sm:text-sm text-white font-medium">
-                        {`${mainProduct.detailedSpecs.battery.capacity.match(/(\d+)\s*mAh/)?.[1] ?? "N/A"} mAh`}
-                      </div>
-                      <div className="text-xs text-white/60 flex">
-                        {((w) => (w ? `${Math.max(...w.map(Number))}W` : "N/A"))(
-                          mainProduct.detailedSpecs.battery.charging?.match(/\d+(?=W)/gi),
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-2 border border-white/30 rounded-lg p-2 sm:p-3 bg-white/5">
-                    <HardDrive className="w-4 h-4 sm:w-5 sm:h-5 text-white mt-0.5 flex-shrink-0" />
-                    <div>
-                      <div className="text-xs text-white/80 mb-1">Storage</div>
-                      <div className="text-xs sm:text-sm text-white font-medium">
-                        {mainProduct.detailedSpecs.ramStorage.storage}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-2 border border-white/30 rounded-lg p-2 sm:p-3 bg-white/5 col-span-2 sm:col-span-1">
-                    <Cpu className="w-4 h-4 sm:w-5 sm:h-5 text-white mt-0.5 flex-shrink-0" />
-                    <div>
-                      <div className="text-xs text-white/80 mb-1">RAM</div>
-                      <div className="text-xs sm:text-sm text-white font-medium">
-                        {mainProduct.detailedSpecs.ramStorage.ram}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Main Price Display */}
-              <div className="w-full sm:w-auto text-center sm:text-right order-3 sm:order-2 mt-4 sm:mt-0 mt-6 sm:mt-0">
-                <div className="text-2xl sm:text-3xl text-white mb-1 font-semibold">
-                  ₹{mainProduct.price.toLocaleString()}
-                </div>
-                <div className="text-xs sm:text-sm text-white/80 mb-3 sm:mb-4">{mainProduct.retailer.name}</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Price Comparison Section */}
-          <div className="border-t border-white/20 pt-6 mt-6 sm:items-end justify-between gap-4">
-            <div className="flex mt-2 gap-2 sm:w-full items-center justify-between">
-              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                {mainProduct.priceComparison.map((link, index) => (
-                  <a
-                    key={index}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="
-                      flex items-center justify-between
-                      bg-white
-                      px-4 py-3
-                      rounded-lg
-                      shadow-sm
-                      w-full sm:w-auto
-                    "
-                  >
-                    <img src={link.logo || "/placeholder.svg"} height={20} width={20} />
-                    <span className="text-emerald-700 font-bold">₹{link.price.toLocaleString()}</span>
-                    <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
-                  </a>
-                ))}
-              </div>
-              <button
-                onClick={() => navigate(`/product/${mainProduct.id}`)}
-                className="
-                  w-full sm:w-auto
-                  px-3 py-3
-                  bg-emerald-700/30
-                  text-white
-                  border border-white/30
-                  rounded-lg
-                  flex items-center justify-center gap-2
-                  hover:cursor-pointer
-                "
-              >
-                View Full Specs
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </div>
+        <FeaturedProductCard product={mainProduct} />
 
         {/* Comparison Tool */}
         <div>

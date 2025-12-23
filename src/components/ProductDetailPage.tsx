@@ -10,6 +10,7 @@ import { endpoints } from "../api/client"
 import { adaptApiPhoneToProduct } from "../utils/adapter"
 import type { Product } from "../data/mockData"
 import type { ApiPhone } from "../api/types"
+import { CardDiscountPill } from "./CardDiscountPillProps"
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -142,7 +143,6 @@ export function ProductDetailPage() {
           <ChevronLeft className="w-4 h-4" />
           Back to results
         </button>
-
         {/* ================= HEADER CARD ================= */}
         <div className="bg-white rounded-2xl shadow-sm p-8 mb-6 border border-gray-100">
           <h1 className="font-semibold text-3xl mb-2 ml-1">{product.name}</h1>
@@ -158,7 +158,7 @@ export function ProductDetailPage() {
             <div className="flex items-center gap-2">
               <div className="flex gap-0.5">
                 {[1, 2, 3, 4].map((i) => (
-                  <Star key={i} className="w-6 h-6 fill-yellow-400 text-yellow-400" />
+                  <Star key={i} className="w-6 h-6 text-gray-300" />
                 ))}
                 <Star className="w-6 h-6 text-gray-300" />
               </div>
@@ -175,35 +175,42 @@ export function ProductDetailPage() {
           {/* Retailer Cards */}
           <div className="space-y-4">
             <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-2">Available at:</h3>
-
-            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
               {product.priceComparison?.map((item, idx) => (
-                <a
-                  key={idx}
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="relative group flex items-center bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-2 hover:border-emerald-500 transition-all w-auto sm:w-[280px]"
-                >
-                  <div className="flex items-center gap-3 pr-4">
-                    <div className="w-10 h-10 bg-white rounded-lg p-1 shadow-sm">
-                      <img
-                        src={item.logo || "/placeholder.svg"}
-                        alt={item.retailer}
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    <div>
-                      <div className="font-bold text-gray-900">{item.retailer}</div>
-                      <div className="text-[10px] text-gray-500 uppercase font-bold">In Stock</div>
-                    </div>
+                <div key={idx} className="relative w-auto sm:w-[280px]">
+                  <div className="absolute top-0 right-2 z-10">
+                    <CardDiscountPill />
                   </div>
-                  <div className="pl-4 flex items-center justify-between gap-2 flex-1">
-                    <span className="text-xl font-black text-gray-900">₹{item.price.toLocaleString()}</span>
-                    <ExternalLink className="w-5 h-5 text-emerald-500 group-hover:scale-110 transition-transform" />
-                  </div>
-                </a>
-              ))}
+
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-2 hover:border-emerald-500 transition-all w-full mt-2 ml-1"
+                  >
+                    {/* Retailer info */}
+                    <div className="flex items-center gap-3 pr-4">
+                      <div className="w-10 h-10 bg-white rounded-lg p-1 shadow-sm">
+                        <img
+                          src={item.logo || "/placeholder.svg"}
+                          alt={item.retailer}
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                      <div>
+                        <div className="font-bold text-gray-900">{item.retailer}</div>
+                        <div className="text-[10px] text-gray-500 uppercase font-bold">In Stock</div>
+                      </div>
+                    </div>
+
+                    {/* Price and icon */}
+                    <div className="pl-4 flex items-center justify-between gap-2 flex-1">
+                      <span className="text-xl font-black text-gray-900">₹{item.price.toLocaleString()}</span>
+                      <ExternalLink className="w-5 h-5 text-emerald-500 group-hover:scale-110 transition-transform" />
+                    </div>
+                  </a>
+                </div>
+                ))}
             </div>
           </div>
         </div>
@@ -219,6 +226,28 @@ export function ProductDetailPage() {
                   alt={product.name}
                   className="max-h-full max-w-full object-contain"
                 />
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                {[1, 2, 3].map((i) => (
+                  <button
+                    key={i}
+                    className="
+                      aspect-[3/4]
+                      bg-gray-50
+                      border
+                      rounded-lg
+                      flex items-center justify-center
+                      hover:border-emerald-500
+                      transition
+                    "
+                  >
+                    <img
+                      src="/placeholder.svg"
+                      alt={`${i}`}
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  </button>
+                ))}
               </div>
               <div className="text-center pt-3 border-t border-gray-100">
                 <div className="text-gray-900 font-medium">{product.daysAgo}</div>
@@ -296,12 +325,10 @@ export function ProductDetailPage() {
                 {/* Right: Price & CTA */}
                 <div className="flex w-[280px] items-center justify-between sm:justify-end gap-4 mt-2 sm:mt-0">
                   <div className="text-left sm:text-right">
-                    <div className="text-sm text-gray-400 line-through font-medium">
-                      ₹{(item.price + 2000).toLocaleString()}
-                    </div>
                     <div className="text-2xl sm:text-3xl font-black text-gray-900">
                       ₹{item.price.toLocaleString()}
                     </div>
+                    <CardDiscountPill />
                   </div>
 
                   <a
@@ -326,7 +353,8 @@ export function ProductDetailPage() {
               </div>
             ))}
           </div>
-
+          <div>
+          </div>
           {/* Trust Note */}
           <p className="mt-6 text-center text-xs text-gray-400 italic">
             * Prices include typical card discounts and are updated periodically from the retailers.
