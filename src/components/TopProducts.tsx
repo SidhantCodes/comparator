@@ -50,7 +50,7 @@ export function TopProducts() {
 
     const fetchProducts = async () => {
       try {
-        const response = await endpoints.search(1, 200);
+        const response = await endpoints.search('phone', 1, 200);
         const adapted = response.data.data.map(adaptApiPhoneToProduct);
 
         const shuffled = [...adapted].sort(() => 0.5 - Math.random());

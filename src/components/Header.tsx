@@ -41,13 +41,13 @@ export function Header() {
   useEffect(() => {
     const loadSearchPool = async () => {
       try {
-        const res = await endpoints.search(1, 200);
+        // Default global search to 'phone'
+        const res = await endpoints.searchAll(1, 200);
         setSearchPool(res.data.data.map(adaptApiPhoneToProduct));
       } catch (error) {
         console.error('Failed to load search pool', error);
       }
     };
-
     loadSearchPool();
   }, []);
 

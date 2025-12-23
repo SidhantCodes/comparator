@@ -95,9 +95,8 @@ export const adaptApiPhoneToProduct = (apiPhone: ApiPhone): Product => {
   return {
     id: apiPhone._id,
     name: apiPhone.model_name,
-    category: `${apiPhone.brand} Phones`,
+    category: apiPhone.category,
     image: apiPhone.image,
-
     price,
     oldPrice: Math.round(price * 1.1),
 

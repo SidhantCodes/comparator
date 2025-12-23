@@ -28,7 +28,7 @@ export function ProductDetailPage() {
 
       try {
         setLoading(true)
-        const response = await endpoints.search(1, 200)
+        const response = await endpoints.searchAll(1, 200)
 
         if (mounted && response.data?.data) {
           const apiPhones: ApiPhone[] = response.data.data

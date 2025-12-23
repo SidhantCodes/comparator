@@ -41,66 +41,49 @@ export function SearchResultsPage() {
 
   /* ----------------------------- Fetch ----------------------------- */
   useEffect(() => {
-    let mounted = true
+  let mounted = true;
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      // Since we don't know the category of the user's query yet,
+      // we might need to search across categories or default to phones.
+      // For this implementation, we fetch phones first. 
+      const response = await endpoints.searchAll(1, 200);
+      const adapted = response.data.data.map(adaptApiPhoneToProduct);
+      
+      if (!mounted) return;
+      setDirectory(adapted);
 
-    const fetchData = async () => {
-      setLoading(true)
-      try {
-        const response = await endpoints.search(1, 200)
-        const adapted = response.data.data.map(adaptApiPhoneToProduct)
-        if (!mounted) return
+      const filtered = adapted.filter((p:any) => {
+        const matchesQuery = query ? p.name.toLowerCase().includes(query.toLowerCase()) : true;
+        const matchesPrice = priceMax > 0 ? p.price <= priceMax : true;
+        return matchesQuery && matchesPrice;
+      });
 
-        setDirectory(adapted)
+      setDisplayedProducts(filtered);
 
-        // 1. Filter products based on the User's Search Query (e.g., "iPhone 17")
-        const filtered: Product[] = adapted.filter((p: Product): boolean => {
-          const matchesQuery: boolean = query ? p.name.toLowerCase().includes(query.toLowerCase()) : true
-          const matchesPrice: boolean = priceMax > 0 ? p.price <= priceMax : true
-          return matchesQuery && matchesPrice
-        })
+      if (filtered.length > 0) {
+        const mainProduct = filtered[0];
+        
+        // IMPORTANT: Filter competitors based on the SAME category as the main product
+        const competitors = adapted.filter((p: any) => 
+          p.id !== mainProduct.id && 
+          p.category === mainProduct.category && // Category Match Constraint
+          p.price >= mainProduct.price - 20000 && 
+          p.price <= mainProduct.price + 5000
+        ).slice(0, 3);
 
-        setDisplayedProducts(filtered)
-
-        // ---------------------------------------------------------------
-        // CHANGED LOGIC START: Comparison based on Price Range
-        // ---------------------------------------------------------------
-
-        if (filtered.length > 0) {
-          // The "Main" product is the best match for the search term
-          const mainProduct = filtered[0]
-
-          const currentPrice = mainProduct.price
-          const minRange = currentPrice - 20000
-          const maxRange = currentPrice + 5000
-
-          // Find competitors from the FULL directory (adapted), not just the search results
-          // We filter by price, exclude the main product itself, and take the top 3
-          const priceCompetitors: Product[] = adapted
-            .filter((p: Product): boolean => p.id !== mainProduct.id && p.price >= minRange && p.price <= maxRange)
-            .slice(0, 3)
-
-          // Combine Main Product + Price Competitors
-          setComparisonProducts([mainProduct, ...priceCompetitors])
-        } else {
-          // Fallback if no search results found
-          setComparisonProducts([])
-        }
-
-        // ---------------------------------------------------------------
-        // CHANGED LOGIC END
-        // ---------------------------------------------------------------
-      } catch (error) {
-        console.error("Error fetching search results", error)
-      } finally {
-        if (mounted) setLoading(false)
+        setComparisonProducts([mainProduct, ...competitors]);
       }
+    } catch (error) {
+      console.error("Error fetching search results", error);
+    } finally {
+      if (mounted) setLoading(false);
     }
-
-    fetchData()
-    return () => {
-      mounted = false
-    }
-  }, [query, priceMax])
+  };
+  fetchData();
+  return () => { mounted = false; };
+}, [query, priceMax]);
 
   /* ---------------------- Click Outside Dropdown ---------------------- */
   useEffect(() => {
@@ -135,20 +118,6 @@ export function SearchResultsPage() {
 
   /* -------------------------- Comparison Rows ------------------------- */
   const comparisonCategories: ComparisonCategory[] = [
-    {
-      title: "Pricing",
-      rows: [
-        {
-          label: "Estimated Price",
-          getValue: (p: Product) => `₹${p.price.toLocaleString()}`,
-        },
-        {
-          label: "Retailer",
-          getValue: (p: Product) => p.retailer.name,
-        },
-      ],
-    },
-
     {
       title: "Performance",
       rows: [
@@ -256,11 +225,15 @@ export function SearchResultsPage() {
     },
     
     {
-      title: "Price",
+      title: "Pricing",
       rows: [
         {
-          label: "Price",
-          getValue: (product) => `₹${product.price.toLocaleString()}`,
+          label: "Estimated Price",
+          getValue: (p: Product) => `₹${p.price.toLocaleString()}`,
+        },
+        {
+          label: "Retailer",
+          getValue: (p: Product) => p.retailer.name,
         },
       ],
     },
@@ -360,13 +333,13 @@ export function SearchResultsPage() {
               />
 
               {showDropdown && searchInput && (
-                <div className="absolute top-full left-0 right-0 bg-white border rounded-lg shadow-lg mt-1 z-20 max-h-64 overflow-auto">
+                <div className="absolute z-100 top-full left-0 right-0 bg-white border rounded-lg shadow-lg mt-1 z-20 max-h-64 overflow-auto">
                   {filteredSuggestions.length > 0 ? (
                     filteredSuggestions.slice(0, 10).map((p) => (
                       <button
                         key={p.id}
                         onClick={() => handleAddProduct(p)}
-                        className="w-full text-left p-3 hover:bg-emerald-50 flex gap-3"
+                        className="w-full text-left p-3 hover:bg-emerald-50 flex gap-3 z-100"
                       >
                         <ImageWithFallback src={p.image || ""} alt={p.name} className="w-8 h-10 object-contain" />
                         <div>

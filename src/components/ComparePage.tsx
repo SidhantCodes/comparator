@@ -67,25 +67,24 @@ export function ComparePage() {
   /* ------------------- 2. Fetch Search Pool (Client Side Fuzzy) ------------------- */
   // We fetch a batch of phones once to perform client-side filtering
   useEffect(() => {
-    const loadSearchPool = async () => {
-      setIsPoolLoading(true);
-      try {
-        // Fetching page 1, limit 100 to build a local search directory
-        // In a real app with thousands of items, you'd verify if the API supports server-side text search.
-        // Based on request "fuzzy search on client side", we fetch list then filter.
-        const response = await endpoints.search(1, 100); 
-        setSearchPool(response.data?.data || []);
-      } catch (err) {
-        console.error("Failed to load search directory", err);
-      } finally {
-        setIsPoolLoading(false);
-      }
-    };
-
-    if (isSearchOpen && searchPool.length === 0) {
-      loadSearchPool();
+  const loadSearchPool = async () => {
+    setIsPoolLoading(true);
+    try {
+      // If we already have products, fetch from that specific category
+      const activeCategory = products.length > 0 ? products[0].category : 'phone';
+      const response = await endpoints.search(activeCategory, 1, 100); 
+      setSearchPool(response.data?.data || []);
+    } catch (err) {
+      console.error("Failed to load search directory", err);
+    } finally {
+      setIsPoolLoading(false);
     }
-  }, [isSearchOpen]);
+  };
+
+  if (isSearchOpen && searchPool.length === 0) {
+    loadSearchPool();
+  }
+}, [isSearchOpen, products]);
 
   /* ------------------- 3. Search Logic ------------------- */
   useEffect(() => {

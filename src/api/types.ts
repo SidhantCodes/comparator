@@ -1,3 +1,5 @@
+export type DeviceCategory = 'phone' | 'watch' | 'tablet';
+
 export interface ApiPhoneSearchSpec {
   ram_gb: number;
   storage_gb: number;
@@ -24,7 +26,8 @@ export interface ApiPhone {
   search_specs: ApiPhoneSearchSpec;
   tech_score: number;
   specs?: Record<string, any>; 
-  affiliate_links?: AffiliateLinks
+  affiliate_links?: AffiliateLinks;
+  category: DeviceCategory;
 }
 
 export interface ApiSearchResponse {

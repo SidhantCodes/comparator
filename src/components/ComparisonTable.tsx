@@ -94,6 +94,7 @@ export function ComparisonTable({ products, categories, onRemoveProduct }: Compa
 
                 {/* Product Name */}
                 <div onClick={() => navigate(`/product/${product.id}`)} className="font-bold text-sm mb-1 px-6 cursor-pointer">{product.name}</div>
+                <div className="text-emerald-700 font-bold text-sm">₹{product.price}/-</div>
               </div>
             ))}
           </div>

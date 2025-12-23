@@ -41,8 +41,10 @@ export const endpoints = {
     login: (data: any) => apiClient.post('/auth/login', data),
     profile: () => apiClient.get('/auth/profile'),
   },
-  search: (page = 1, limit = 20) =>
-    apiClient.get(`/phones/search?page=${page}&limit=${limit}`),
+  searchAll: (page = 1, limit = 20) =>
+    apiClient.get(`/search?page=${page}&limit=${limit}`),
+  search: (category: string = 'phone', page = 1, limit = 20) =>
+    apiClient.get(`/${category}/search?page=${page}&limit=${limit}`),
   compare: (ids: string[]) =>
     apiClient.get(`/phones/compare?ids=${ids.join(',')}`),
   getExpertRatings: (deviceId: string) =>
