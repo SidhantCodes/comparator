@@ -318,8 +318,8 @@ export function SearchResultsPage() {
               </h5>
             </div>
 
-            {/* Add Phone */}
-            <div className="relative max-w-lg flex items-center border rounded-lg px-2" ref={searchContainerRef}>
+            {/* CHANGE: Added z-30 here */}
+            <div className="relative z-30 max-w-lg flex items-center border rounded-lg px-2" ref={searchContainerRef}>
               <Search className="text-gray-400 h-5 w-5" />
               <input
                 value={searchInput}
@@ -333,13 +333,14 @@ export function SearchResultsPage() {
               />
 
               {showDropdown && searchInput && (
-                <div className="absolute z-100 top-full left-0 right-0 bg-white border rounded-lg shadow-lg mt-1 z-20 max-h-64 overflow-auto">
+                /* CHANGE: Removed z-100 and z-20, added z-50 */
+                <div className="absolute top-full left-0 right-0 bg-white border rounded-lg shadow-lg mt-1 z-50 max-h-64 overflow-auto">
                   {filteredSuggestions.length > 0 ? (
                     filteredSuggestions.slice(0, 10).map((p) => (
                       <button
                         key={p.id}
                         onClick={() => handleAddProduct(p)}
-                        className="w-full text-left p-3 hover:bg-emerald-50 flex gap-3 z-100"
+                        className="w-full text-left p-3 hover:bg-emerald-50 flex gap-3"
                       >
                         <ImageWithFallback src={p.image || ""} alt={p.name} className="w-8 h-10 object-contain" />
                         <div>
