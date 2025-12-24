@@ -9,6 +9,9 @@ import { useAuth } from '../context/AuthContext';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Button } from './ui/button';
 
+import { incrementSearchCount, isSearchLimitReached } from '../utils/searchLimiter';
+import { toast } from 'sonner';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +32,16 @@ export function Header() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleSelectProduct = (name: string) => {
+    if (!user && isSearchLimitReached()) {
+      toast.info('You have reached the limit of guest searches. Please sign in.');
+      navigate('/auth');
+      return;
+    }
+
+    if (!user) {
+      incrementSearchCount();
+    }
+    
     navigate(`/search?q=${encodeURIComponent(name)}`);
     setSearchQuery('');
     setSearchResults([]);

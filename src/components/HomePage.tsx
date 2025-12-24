@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, TrendingUp, X } from 'lucide-react';
-import Slider from 'react-slick'; // Import Slider
 
-// Import Slick CSS (Required for the carousel to work)
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
@@ -15,9 +13,14 @@ import { Product } from '../data/mockData';
 import { TopProducts } from './TopProducts';
 import { ReviewsCarousel } from './ReviewsCarousel';
 
+import { incrementSearchCount, isSearchLimitReached } from '../utils/searchLimiter';
+import { useAuth } from '../context/AuthContext';
+import { toast } from 'sonner';
+
 
 export function HomePage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [priceRange, setPriceRange] = useState(150000);
@@ -176,6 +179,18 @@ export function HomePage() {
   const performSearch = (queryText: string) => {
     if (!queryText.trim()) return;
 
+    // ---------- SEARCH LIMIT LOGIC ----------
+    if (!user && isSearchLimitReached()) {
+      toast.info('Please sign in to continue searching.');
+      navigate('/auth');
+      return;
+    }
+
+    if (!user) {
+      incrementSearchCount();
+    }
+    // ----------------------------------------
+
     navigate(
       `/search?q=${encodeURIComponent(queryText)}&price=${priceRange}`
     );
@@ -183,6 +198,7 @@ export function HomePage() {
     setSearchQuery(queryText);
     setShowDropdown(false);
   };
+
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -345,11 +361,7 @@ export function HomePage() {
               trendingProducts.map(name => (
                 <button
                   key={name}
-                  onClick={() =>
-                    navigate(
-                      `/search?q=${encodeURIComponent(name)}`
-                    )
-                  }
+                  onClick={() => performSearch(name)}
                   className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm hover:bg-white/20 transition-all border border-white/20 text-white truncate max-w-[150px] cursor-pointer"
                 >
                   {name}

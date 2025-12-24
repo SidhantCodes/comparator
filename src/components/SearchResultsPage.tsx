@@ -22,9 +22,16 @@ import {
 import { Button } from "./ui/button"
 
 import { FeaturedProductCard } from "./FeaturedProductCard"
+
+import { isSearchLimitReached } from "../utils/searchLimiter";
+import { useAuth } from "../context/AuthContext";
+import { toast } from "sonner";
+
+
 export function SearchResultsPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+  const { user } = useAuth();
 
   const query = searchParams.get("q") || ""
   const priceMax = Number(searchParams.get("price")) || 0
@@ -41,13 +48,15 @@ export function SearchResultsPage() {
 
   /* ----------------------------- Fetch ----------------------------- */
   useEffect(() => {
-  let mounted = true;
-  const fetchData = async () => {
+    if (!user && isSearchLimitReached()) {
+      toast.error("Search limit reached. Please log in.");
+      navigate("/auth");
+      return;
+    }
+    let mounted = true;
+    const fetchData = async () => {
     setLoading(true);
     try {
-      // Since we don't know the category of the user's query yet,
-      // we might need to search across categories or default to phones.
-      // For this implementation, we fetch phones first. 
       const response = await endpoints.searchAll(1, 200);
       const adapted = response.data.data.map(adaptApiPhoneToProduct);
       
@@ -83,7 +92,7 @@ export function SearchResultsPage() {
   };
   fetchData();
   return () => { mounted = false; };
-}, [query, priceMax]);
+}, [query, priceMax, user, navigate]);
 
   /* ---------------------- Click Outside Dropdown ---------------------- */
   useEffect(() => {

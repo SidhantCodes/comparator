@@ -2,6 +2,8 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { endpoints } from '../api/client';
 import { UserProfile } from '../api/types';
 
+import { clearSearchCount } from '../utils/searchLimiter';
+
 interface AuthContextType {
   user: UserProfile | null;
   loading: boolean;
@@ -42,6 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (token: string) => {
     localStorage.setItem('auth_token', token);
+    clearSearchCount();
     await fetchProfile();
   };
 
