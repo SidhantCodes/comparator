@@ -90,20 +90,18 @@ export function Header() {
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 py-3">
-        <div className="flex items-center justify-between gap-8">
+        <div className="flex items-center justify-between gap-3">
           {/* Logo */}
           <Link
             to="/"
             className="flex items-center gap-2 flex-shrink-0 group"
           >
             <div className="bg-emerald-600 text-white p-2 rounded-lg group-hover:bg-emerald-700 transition-colors">
-              <Layers className="w-3 h-3 sm:h-5 sm:w-5" />
+              <Layers className="w-5 h-5" />
             </div>
-            {/* <span className="text-gray-900 text-xl font-bold tracking-tight"> */}
-            <span className="sm:block text-gray-900 text-xs sm:text-xl font-bold tracking-tight">
+            <span className="hidden md:block text-gray-900 text-xl font-bold tracking-tight">
               PriceCompare
             </span>
-            
           </Link>
 
           {/* Search Bar (available to everyone) */}

@@ -140,7 +140,7 @@ function Spec({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex items-start gap-2 border border-white/30 rounded-lg p-3 bg-white/5">
+    <div className="flex items-start gap-1 border border-white/30 rounded-lg p-3 bg-white/5">
       <div className="text-white w-5 h-5">{icon}</div>
       <div>
         <div className="text-xs text-white/80 mb-1">{label}</div>

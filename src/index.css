@@ -2874,7 +2874,7 @@ html {
 
 /* Active dot */
 .carousel-dots .slick-dots li.slick-active button:before {
-  background-color: #064E3B;
+  background-color: #059669;
   width: 12px;
   height: 12px;
   top: 1px;

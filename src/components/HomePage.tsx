@@ -350,7 +350,7 @@ export function HomePage() {
                       `/search?q=${encodeURIComponent(name)}`
                     )
                   }
-                  className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm hover:bg-white/20 transition-all border border-white/20 text-white truncate max-w-[150px]"
+                  className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm hover:bg-white/20 transition-all border border-white/20 text-white truncate max-w-[150px] cursor-pointer"
                 >
                   {name}
                 </button>
