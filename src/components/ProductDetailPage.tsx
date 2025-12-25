@@ -146,9 +146,15 @@ export function ProductDetailPage() {
         </button>
         {/* ================= HEADER CARD ================= */}
         <div className="bg-white rounded-2xl shadow-sm p-8 mb-6 border border-gray-100">
-          <h1 className="font-semibold text-3xl mb-2 ml-1">{product.name}</h1>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
+            <h1 className="font-bold text-3xl mb-2 ml-1">{product.name}</h1>
+            <div className="flex-col">
+              <span className="text-sm text-gray-500 ml-1">Base Price</span>
+              <h3 className="font-semibold text-2xl sm:text-3xl mb-2 ml-1">₹{product.price}/-</h3>
+            </div>
+          </div>
 
-          <div className="flex flex-wrap items-center gap-6 mb-8">
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-6 mb-8">
             {/* Score */}
             <div className="flex items-center gap-3 px-4 py-2 bg-emerald-50/50 border border-emerald-200 rounded-2xl">
               <span className="text-xl sm:text-3xl font-bold text-emerald-600">{product.beebomScore}</span>
@@ -164,7 +170,7 @@ export function ProductDetailPage() {
                 <Star className="w-6 h-6 text-gray-300" />
               </div>
               <span className="text-xl font-bold text-gray-900">{product.rating}/5</span>
-              <span className="text-gray-400">({product.reviews} Ratings)</span>
+              <span className="text-gray-400 text-xs sm:text-sm">({product.reviews})</span>
             </div>
 
             {/* Stock */}
@@ -179,7 +185,7 @@ export function ProductDetailPage() {
             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
               {product.priceComparison?.map((item, idx) => (
                 <div key={idx} className="relative w-auto sm:w-[280px]">
-                  <div className="absolute top-0 right-2 z-10">
+                  <div className="absolute right-0">
                     <CardDiscountPill />
                   </div>
 
@@ -187,10 +193,10 @@ export function ProductDetailPage() {
                     href={item.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-2 hover:border-emerald-500 transition-all w-full mt-2 ml-1"
+                    className="flex items-center bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-2 hover:border-emerald-500 transition-all w-full mt-2 ml-1 justify-center mx-2 gap-2"
                   >
                     {/* Retailer info */}
-                    <div className="flex items-center gap-3 pr-4">
+                    <div className="flex items-center gap-4 pr-4">
                       <div className="w-10 h-10 bg-white rounded-lg p-1 shadow-sm">
                         <img
                           src={item.logo || "/placeholder.svg"}
@@ -200,15 +206,10 @@ export function ProductDetailPage() {
                       </div>
                       <div>
                         <div className="font-bold text-gray-900">{item.retailer}</div>
-                        <div className="text-[10px] text-gray-500 uppercase font-bold">In Stock</div>
+                        <div className="text-[10px] text-gray-500 uppercase font-bold">Check Latest Price</div>
                       </div>
                     </div>
-
-                    {/* Price and icon */}
-                    <div className="pl-4 flex items-center justify-between gap-2 flex-1">
-                      <span className="text-xl font-black text-gray-900">₹{item.price.toLocaleString()}</span>
-                      <ExternalLink className="w-5 h-5 text-emerald-500 group-hover:scale-110 transition-transform" />
-                    </div>
+                    <ExternalLink className="w-5 h-5 text-emerald-500 group-hover:scale-110 transition-transform" />
                   </a>
                 </div>
                 ))}
@@ -336,8 +337,10 @@ export function ProductDetailPage() {
                 {/* Right: Price & CTA */}
                 <div className="flex w-[280px] items-center justify-between sm:justify-end gap-4 mt-2 sm:mt-0">
                   <div className="text-left sm:text-right">
-                    <div className="text-2xl sm:text-3xl font-black text-gray-900">
-                      ₹{item.price.toLocaleString()}
+                    <div className="mt-4 text-sm sm:text-xl font-black text-gray-900">
+                      {/* ₹{item.price.toLocaleString()} */}
+                      {/* Check Availability */}
+                      Check Latest Price
                     </div>
                     <CardDiscountPill />
                   </div>

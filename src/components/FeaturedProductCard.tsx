@@ -32,15 +32,6 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
           </div>
         </div>
 
-        {/* MOBILE ONLY: Price Comparison (before Quick Specs) */}
-        <PriceComparison
-          price={product.price}
-          retailerName={product.retailer.name}
-          priceComparison={product.priceComparison}
-          className="md:hidden gap-2"
-        />
-
-
         <div className="flex-1 min-w-0 text-center sm:text-left pb-6 order-2 sm:order-none">
           <h2 className="text-white mb-1 text-2xl sm:text-3xl font-bold">{product.name}</h2>
           <div className="text-xs sm:text-sm text-white/80 mb-4">{product.daysAgo}</div>
@@ -88,6 +79,14 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
             </Spec>
           </div>
         </div>
+
+        {/* MOBILE ONLY: Price Comparison (before Quick Specs) */}
+        <PriceComparison
+          price={product.price}
+          retailerName={product.retailer.name}
+          priceComparison={product.priceComparison}
+          className="md:hidden gap-2"
+        />
 
         {/* RIGHT: Retailer Prices (Reduced Width) */}
         <PriceComparison

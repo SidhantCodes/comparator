@@ -22,7 +22,7 @@ const socialLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-gradient-to-br from-emerald-900 via-teal-900 to-green-800 text-white">
+    <footer className="bg-gradient-to-br from-emerald-900 via-teal-900 to-green-800 text-white mt-10">
       <div className="max-w-7xl mx-auto px-4 py-8 sm:py-12">
         <div className="flex flex-col items-center gap-6 sm:gap-8">
 

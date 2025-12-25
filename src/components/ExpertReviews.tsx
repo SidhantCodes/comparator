@@ -12,87 +12,100 @@ interface ExpertReviewsProps {
   };
 }
 
+
+const BRAND_CONFIG: Record<string, { logo?: string; color?: string }> = {
+  'the verge': {
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/a/af/The_Verge_logo.svg',
+  },
+  'techradar': {
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/2/21/TechRadar_logo_%282023%29.svg',
+  },
+};
+
 export function ExpertReviews({ data }: ExpertReviewsProps) {
-  const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  
+  // Helper to determine what to show in the logo box
+  const renderSourceLogo = (name: string) => {
+    const config = BRAND_CONFIG[name.toLowerCase()];
+
+    if (config?.logo) {
+      return (
+        <img 
+          src={config.logo} 
+          alt={name} 
+          className="w-full h-full object-contain p-1" 
+        />
+      );
+    }
+
+    // FALLBACK: If no logo is found in the registry, show Initials
+    const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    return <span className="font-black text-emerald-700 text-lg">{initials}</span>;
   };
 
   const renderStars = (rating: number) => {
-    const fullStars = Math.floor(rating)
-    const hasHalfStar = rating % 1 >= 0.5
-    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0)
-
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    
     return (
-      <div className="flex gap-0.5 justify-center mb-1">
-        {/* Full stars */}
+      <div className="flex gap-1 justify-center mb-1.5">
         {Array.from({ length: fullStars }).map((_, i) => (
-          <Star
-            key={`full-${i}`}
-            size={12}
-            className="text-yellow-400"
-            fill="currentColor"
-          />
+          <Star key={`full-${i}`} size={16} className="text-yellow-400" fill="currentColor" />
         ))}
-
-        {/* Half star */}
-        {hasHalfStar && (
-          <StarHalf
-            size={12}
-            className="text-yellow-400"
-            fill="currentColor"
-          />
-        )}
-
-        {/* Empty stars */}
+        {hasHalfStar && <StarHalf size={16} className="text-yellow-400" fill="currentColor" />}
         {Array.from({ length: emptyStars }).map((_, i) => (
-          <Star
-            key={`empty-${i}`}
-            size={12}
-            className="text-gray-200"
-          />
+          <Star key={`empty-${i}`} size={16} className="text-gray-200" />
         ))}
       </div>
-    )
-  }
-
-  const ReviewCard = ({ source }: { source: typeof data.sources[0] }) => (
-    <a 
-      href={source.url} 
-      target="_blank" 
-      rel="noopener noreferrer"
-      className="bg-white rounded-xl p-4 sm:p-6 text-center border border-emerald-50 shadow-sm hover:shadow-md transition-shadow flex flex-col items-center group h-full"
-    >
-      <div className="w-10 h-8 sm:w-12 sm:h-10 bg-emerald-100 rounded-lg flex items-center justify-center mb-3 text-emerald-700 font-bold text-xs sm:text-sm">
-        {getInitials(source.name)}
-      </div>
-      <h4 className="font-bold text-gray-900 text-xs sm:text-sm mb-2 group-hover:text-emerald-600 transition-colors line-clamp-1">
-        {source.name}
-      </h4>
-      {renderStars(source.score)}
-      <div className="text-[10px] sm:text-xs font-bold text-gray-500">{source.score}/5</div>
-    </a>
-  );
+    );
+  };
 
   return (
-    <div className="bg-emerald-100 rounded-xl p-6 sm:p-10 mb-8 border border-emerald-300">
-      {/* Header Score Box */}
-      <div className="flex justify-center mb-6 sm:mb-10">
-        <div className="bg-white rounded-2xl p-5 px-8 shadow-sm border border-emerald-300 border-2 flex flex-col items-center">
-          <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">Expert Score</span>
-          <div className="flex items-center gap-3">
-            <Star
-              className="text-emerald-600 w-6 h-6 sm:w-8 sm:h-8"
-              fill="currentColor"
-            />
-            <span className="text-3xl sm:text-4xl font-black text-emerald-700">{data.averageScore.toFixed(1)}</span>
+    <div className="bg-emerald-100 rounded-lg p-8 sm:p-12 mb-8 border border-emerald-300">
+      {/* Expert Score Header */}
+      <div className="flex justify-center mb-10 sm:mb-14">
+        <div className="bg-white rounded-2xl p-6 px-10 shadow-sm border-2 border-emerald-300 flex flex-col items-center">
+          <span className="text-xs uppercase font-bold text-gray-400 tracking-widest mb-1">Expert Score</span>
+          <div className="flex items-center gap-4">
+            <Star className="text-emerald-600 w-8 h-8 sm:w-10 sm:h-10" fill="currentColor" />
+            <span className="text-4xl sm:text-5xl font-black text-emerald-700">{data.averageScore.toFixed(1)}</span>
           </div>
         </div>
       </div>
 
-      {/* Responsive Grid: 2 cols on mobile, 4 cols on desktop */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      {/* 
+          SCALABLE FLEX GRID:
+          - justify-center: ensures 1, 2, or 4+ cards always look balanced.
+          - max-w-[1100px]: ensures that once you hit 3 cards (approx 320px + gap), 
+            the 4th one wraps.
+      */}
+      <div className="flex flex-wrap justify-center gap-3 sm:gap-10 max-w-[1100px] mx-auto">
         {data.sources.map((source, idx) => (
-          <ReviewCard key={idx} source={source} />
+          <button
+            key={idx}
+            /* 
+               CARD SIZE:
+               - Mobile: flex-1 with min-w-[140px] and max-w-[48%] (2 per row)
+               - Desktop: sm:w-[320px] (3 per row max)
+            */
+            className="bg-white rounded-xl mt-6 p-4 sm:p-10 text-center border border-2 border-emerald-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center group flex-1 min-w-[140px] max-w-[48%] sm:max-w-none sm:w-[320px] sm:flex-initial"
+          >
+            {/* Logo Box */}
+            <div className="w-12 h-12 sm:w-24 sm:h-16 bg-gray-50 rounded-xl flex items-center justify-center mb-5 overflow-hidden p-2 group-hover:bg-emerald-50 transition-colors">
+              {renderSourceLogo(source.name)}
+            </div>
+            
+            <h4 className="font-bold text-gray-900 text-sm sm:text-xl mb-2 group-hover:text-emerald-600 transition-colors line-clamp-1">
+              {source.name}
+            </h4>
+            
+            {renderStars(source.score)}
+            
+            <div className="text-xs sm:text-lg font-bold text-gray-500 mt-2">
+              {source.score.toFixed(1)} <span className="text-gray-300">/</span> 5
+            </div>
+          </button>
         ))}
       </div>
     </div>

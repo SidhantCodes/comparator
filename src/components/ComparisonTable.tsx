@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom"
 export interface ComparisonCategory {
   title: string
   rows: {
-    label: string
+    label: React.ReactNode
     getValue: (product: Product) => ReactNode
   }[]
 }
@@ -127,7 +127,7 @@ export function ComparisonTable({ products, categories, onRemoveProduct }: Compa
 
               {/* Category Rows */}
               {category.rows.map((row, rowIndex) => (
-                <div key={row.label} className={`grid border-b border-gray-200`} style={{ gridTemplateColumns }}>
+                <div key={rowIndex} className={`grid border-b border-gray-200`} style={{ gridTemplateColumns }}>
                   {/* Row Label */}
                   <div
                     className={`p-3 font-medium text-gray-700 text-sm border-r border-gray-200 ${rowIndex % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}

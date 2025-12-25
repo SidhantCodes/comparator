@@ -46,11 +46,11 @@ const reviews = [
 
 export function ReviewsCarousel() {
   const sliderSettings = {
-    dots: true,                 // ✅ dots on desktop
+    dots: true,
     arrows: false,
     infinite: true,
     speed: 500,
-    slidesToShow: 3,            // desktop
+    slidesToShow: 3,
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 3000,
@@ -67,16 +67,16 @@ export function ReviewsCarousel() {
       {
         breakpoint: 768,
         settings: {
-          slidesToShow: 1,      // ✅ one card on mobile
-          dots: true,           // ✅ dots on mobile
+          slidesToShow: 1,
+          dots: true,           
         },
       },
     ],
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 pt-20 pb-10 carousel-dots mb-10">
-      <h2 className="text-gray-900 text-3xl mb-8">Reviews</h2>
+    <div className="max-w-7xl mx-auto px-4 pt-20 pb-10 carousel-dots pb-10">
+      <h2 className="text-gray-900 text-3xl font-semibold mb-8 mt-10">Reviews</h2>
       <Slider {...sliderSettings}>
         {reviews.map((review, index) => (
           <div key={index} className="px-3">

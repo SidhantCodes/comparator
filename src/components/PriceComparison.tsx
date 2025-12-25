@@ -17,10 +17,10 @@ export function PriceComparison({
   return (
     <div className={`flex flex-col ${className}`}>
       <div className="text-center sm:text-right text-white">
+        <div className="text-sm text-white/80">Price at Launch</div>
         <div className="text-3xl font-semibold">
           ₹{price.toLocaleString()}
         </div>
-        <div className="text-sm text-white/80">{retailerName}</div>
       </div>
 
       {priceComparison.map((link, index) => (
@@ -31,7 +31,7 @@ export function PriceComparison({
           rel="noopener noreferrer"
           className="
             group
-            flex items-center justify-between
+            flex items-center justify-center
             bg-white
             px-3 py-2.5
             mt-2
@@ -52,10 +52,10 @@ export function PriceComparison({
             width={18}
             alt=""
           />
-          <span className="text-emerald-700 font-semibold text-sm">
-            ₹{link.price.toLocaleString()}
+          <span className="text-emerald-600 font-semibold text-sm ml-1 hover:text-emerald-700 transition-all duration-200 ease-out">
+            Check Latest Price
           </span>
-          <ExternalLink className="w-4 h-4 text-gray-400 transition group-hover:text-emerald-600" />
+          {/* <ExternalLink className="w-4 h-4 text-gray-400 transition group-hover:text-emerald-600" /> */}
         </a>
       ))}
     </div>

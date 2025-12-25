@@ -37,79 +37,6 @@ export function HomePage() {
   const [showDropdown, setShowDropdown] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
-  /* ----------------------- Reviews Data & Settings ----------------------- */
-  const reviews = [
-    {
-      title: 'RedMagic 10S Pro Review: built for hardcore gamers',
-      date: 'Jun 20, 2025',
-      image: 'https://images.unsplash.com/photo-1695028644151-1ec92bae9fb0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZWRtYWdpYyUyMGdhbWluZyUyMHBob25lfGVufDF8fHx8MTc2NDE0NTE2N3ww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
-    },
-    {
-      title: 'Sony Xperia 1 VII Review: excellent hardware, mixed results',
-      date: 'Jun 2, 2025',
-      image: 'https://images.unsplash.com/photo-1657732214333-697a115ba263?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzb255JTIweHBlcmlhJTIwc21hcnRwaG9uZXxlbnwxfHx8fDE3NjQxNDUxNjd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
-    },
-    {
-      title: 'Samsung Galaxy S25 Edge Review: slim profile, slimmer battery',
-      date: 'May 23, 2025',
-      image: 'https://images.unsplash.com/photo-1721864428861-e4a9e9f9a5ee?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzYW1zdW5nJTIwZ2FsYXh5JTIwcGhvbmV8ZW58MXx8fHwxNzY0MTI0NjY1fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
-    },
-    {
-      title: 'OnePlus 13 Review: flagship performance at a fraction of the price',
-      date: 'May 15, 2025',
-      image: 'https://images.unsplash.com/photo-1628582091924-296b8ec1fffe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxvbmVwbHVzJTIwc21hcnRwaG9uZXxlbnwxfHx8fDE3NjQxMzkzODd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
-    },
-    {
-      title: 'Google Pixel 10 Pro Review: best camera phone of 2025',
-      date: 'May 8, 2025',
-      image: 'https://images.unsplash.com/photo-1598522017610-edbea54edd64?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxnb29nbGUlMjBwaXhlbCUyMHBob25lfGVufDF8fHx8MTc2NDA5MjE1N3ww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
-    },
-    {
-      title: 'Apple iPhone 17 Pro Max Review: the pinnacle of smartphone design',
-      date: 'Apr 29, 2025',
-      image: 'https://images.unsplash.com/photo-1524466302651-a98b8b02c497?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpcGhvbmUlMjBtb2Rlcm58ZW58MXx8fHwxNzY0MTA5NzY0fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
-    }
-  ];
-
-  const sliderSettings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 3000,
-    cssEase: "linear",
-    pauseOnHover: true,
-    arrows: false,
-    responsive: [
-      {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 1,
-          infinite: true,
-          dots: true,
-          autoplay: true,
-          autoplaySpeed: 3000,
-          arrows: false
-        }
-      },
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-          infinite: true,
-          // dots: true,
-          autoplay: true,
-          autoplaySpeed: 3000,
-          arrows: false
-        }
-      }
-    ]
-  };
-
 
   /* ----------------------------- Fetch Products ----------------------------- */
   useEffect(() => {
@@ -121,10 +48,10 @@ export function HomePage() {
         const adapted = response.data.data.map(adaptApiPhoneToProduct);
 
         if (mounted) {
-          setProducts(adapted.slice(0, 20));
+          setProducts(adapted.slice(0, 200));
           setSearchPool(adapted);
           const shuffled = [...adapted].sort(() => 0.5 - Math.random());
-          setRandomProducts(shuffled.slice(0, 20));
+          setRandomProducts(shuffled.slice(0, 200));
         }
       } catch (error) {
         console.error('Failed to fetch products', error);
@@ -372,11 +299,11 @@ export function HomePage() {
         </div>
       </div>
 
-      {/* ======================= REVIEWS SECTION ======================= */}
-      <ReviewsCarousel />
-
       {/* ======================= Top Products to Compare ======================= */}
       <TopProducts />
+      
+      {/* ======================= REVIEWS SECTION ======================= */}
+      <ReviewsCarousel />
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useSearchParams, useNavigate } from "react-router-dom"
 import { useState, useEffect, useRef } from "react"
-import { Plus, Search } from "lucide-react"
+import { ArrowRight, ExternalLink, Plus, Search } from "lucide-react"
 
 import { ImageWithFallback } from "./figma/ImageWithFallback"
 import { ComparisonTable, type ComparisonCategory } from "./ComparisonTable"
@@ -73,13 +73,11 @@ export function SearchResultsPage() {
 
       if (filtered.length > 0) {
         const mainProduct = filtered[0];
-        
-        // IMPORTANT: Filter competitors based on the SAME category as the main product
         const competitors = adapted.filter((p: any) => 
           p.id !== mainProduct.id && 
-          p.category === mainProduct.category && // Category Match Constraint
-          p.price >= mainProduct.price - 20000 && 
-          p.price <= mainProduct.price + 5000
+          p.category === mainProduct.category &&
+          p.price >= mainProduct.price - 10000 && 
+          p.price <= mainProduct.price
         ).slice(0, 3);
 
         setComparisonProducts([mainProduct, ...competitors]);
@@ -125,8 +123,45 @@ export function SearchResultsPage() {
     setComparisonProducts((prev) => prev.filter((p) => p.id !== id))
   }
 
+
   /* -------------------------- Comparison Rows ------------------------- */
   const comparisonCategories: ComparisonCategory[] = [
+    {
+      title: "Retailers & Pricing",
+      rows: [
+        {
+          label: "",
+          getValue: (p: Product) => (
+            <div className="flex flex-col gap-2">
+              {p.priceComparison && p.priceComparison.length > 0 ? (
+                p.priceComparison.map((offer, idx) => (
+                  <a
+                    href={offer.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    key={idx} 
+                    className="flex items-center justify-center bg-emerald-600 px-2 py-1 rounded-lg hover:bg-emerald-700 transition-colors duration-300"
+                  >
+                    <div className="flex items-center gap-2">
+                      <img 
+                        src={offer.logo} 
+                        alt={offer.retailer} 
+                        className="w-4 h-4 object-contain flex-shrink-0" 
+                      />
+                      <span className="text-[11px] font-medium text-white truncate max-w-[70px]">
+                        Check Latest Price
+                      </span>
+                    </div>
+                  </a>
+                ))
+              ) : (
+                <span className="text-white text-xs">N/A</span>
+              )}
+            </div>
+          ),
+        },
+      ],
+    },
     {
       title: "Performance",
       rows: [
@@ -232,20 +267,6 @@ export function SearchResultsPage() {
         },
       ],
     },
-    
-    {
-      title: "Pricing",
-      rows: [
-        {
-          label: "Estimated Price",
-          getValue: (p: Product) => `₹${p.price.toLocaleString()}`,
-        },
-        {
-          label: "Retailer",
-          getValue: (p: Product) => p.retailer.name,
-        },
-      ],
-    },
     {
       title: "", // Empty title so it looks like a footer action
       rows: [
@@ -255,11 +276,46 @@ export function SearchResultsPage() {
             <Button
               variant="link"
               onClick={() => navigate(`/product/${p.id}`)}
-              className="cursor-pointer border border-black rounded-lg hover:bg-emerald-700 hover:text-white transition-all duration-200 ease-out"
-              // className="w-full py-2 px-4 bg-emerald-50 text-emerald-700 font-semibold rounded-lg border border-emerald-200 hover:bg-emerald-600 hover:text-white transition-all duration-200 text-sm"
+              className="cursor-pointer border border-black rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-all duration-200 ease-out"
             >
               View Full Specs
             </Button>
+          ),
+        },
+      ],
+    },
+    {
+      title: "Retailer & Pricing",
+      rows: [
+        {
+          label: "",
+          getValue: (p: Product) => (
+            <div className="flex flex-col gap-3">
+              {p.priceComparison && p.priceComparison.length > 0 ? (
+                p.priceComparison.map((offer, idx) => (
+                  <a
+                    href={offer.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    key={idx} 
+                    className="flex items-center justify-center gap-2 bg-emerald-600 px-2 py-1 rounded-lg hover:bg-emerald-700 transition-colors duration-300"
+                  >
+                    <div className="flex items-center gap-4">
+                      <img 
+                        src={offer.logo} 
+                        alt={offer.retailer} 
+                        className="w-4 h-4 object-contain flex-shrink-0" 
+                      />
+                      <span className="text-[11px] font-medium text-white truncate max-w-[70px]">
+                        Check Latest Price
+                      </span>
+                    </div>
+                  </a>
+                ))
+              ) : (
+                <span className="text-white text-xs">N/A</span>
+              )}
+            </div>
           ),
         },
       ],
@@ -329,7 +385,7 @@ export function SearchResultsPage() {
 
             {/* CHANGE: Added z-30 here */}
             <div className="relative z-30 max-w-lg flex items-center border rounded-lg px-2" ref={searchContainerRef}>
-              <Search className="text-gray-400 h-5 w-5" />
+              <Search className="text-gray-400 h-4 w-4" />
               <input
                 value={searchInput}
                 onChange={(e) => {
@@ -338,7 +394,7 @@ export function SearchResultsPage() {
                 }}
                 onFocus={() => setShowDropdown(true)}
                 placeholder="Add phone to compare"
-                className="w-full rounded-lg px-4 py-2 placeholder:text-gray-400 focus:outline-none"
+                className="w-full rounded-lg px-4 py-2 placeholder:text-gray-400 focus:outline-none text-sm -ml-1"
               />
 
               {showDropdown && searchInput && (
@@ -366,7 +422,10 @@ export function SearchResultsPage() {
               )}
             </div>
           </div>
-
+          <div className="flex md:hidden items-center opacity-80">
+            <span className="text-gray-600 text-sm">Swipe to view more devices</span>
+            <ArrowRight className="w-3 h-3 text-gray-600 ml-1"/>
+          </div>
           <ComparisonTable
             products={comparisonProducts}
             categories={comparisonCategories}
