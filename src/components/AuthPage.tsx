@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
-import { Layers, Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
+import { Layers, Mail, Lock, Loader2, ArrowRight, User, Phone } from 'lucide-react'; // Added User and Phone
 import { endpoints } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
@@ -15,7 +15,14 @@ export function AuthPage() {
 
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  
+  // 1. Updated state to include name and phone
+  const [formData, setFormData] = useState({ 
+    email: '', 
+    password: '',
+    name: '',
+    phone: '' 
+  });
 
   if (user) return <Navigate to="/" replace />;
 
@@ -24,12 +31,27 @@ export function AuthPage() {
     setLoading(true);
     try {
       if (isLogin) {
-        const res = await endpoints.auth.login(formData);
+        const res = await endpoints.auth.login({ 
+          email: formData.email, 
+          password: formData.password 
+        });
         await login(res.data.access_token);
         toast.success('Welcome back!');
         navigate('/');
       } else {
-        await endpoints.auth.signup(formData);
+        // 2. Console log the extra fields for now
+        console.log('Registering user with:', {
+          name: formData.name,
+          phone: formData.phone,
+          email: formData.email
+        });
+
+        // Sending existing data to backend (update this later to include name/phone)
+        await endpoints.auth.signup({
+          email: formData.email,
+          password: formData.password,
+        });
+        
         toast.success('Account created! Please sign in.');
         setIsLogin(true);
       }
@@ -60,9 +82,48 @@ export function AuthPage() {
         </CardHeader>
 
         <CardContent className="px-6 pb-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            
+            {/* 3. Conditional Name Field */}
+            {!isLogin && (
+              <div className="space-y-2">
+                <Label htmlFor="name">Full Name</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="John Doe"
+                    className="pl-12 h-11 focus-visible:ring-emerald-500"
+                    required={!isLogin}
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* 4. Conditional Phone Field */}
+            {!isLogin && (
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="+1 (555) 000-0000"
+                    className="pl-12 h-11 focus-visible:ring-emerald-500"
+                    required={!isLogin}
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Email */}
-            <div className="space-y-2 mt-2 mb-3">
+            <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -81,7 +142,7 @@ export function AuthPage() {
             </div>
 
             {/* Password */}
-            <div className="space-y-2 mb-3 my-5">
+            <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -103,7 +164,7 @@ export function AuthPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="h-12 w-full mt-5 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors"
+              className="h-12 w-full mt-6 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors"
             >
               {loading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
