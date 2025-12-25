@@ -164,10 +164,13 @@ export function ProductDetailPage() {
             {/* Rating */}
             <div className="flex items-center gap-2">
               <div className="flex gap-0.5">
-                {[1, 2, 3, 4].map((i) => (
-                  <Star key={i} className="w-6 h-6 text-gray-300" />
-                ))}
-                <Star className="w-6 h-6 text-gray-300" />
+                {
+                  product.rating != 0 ? 
+                    <Star className="w-7 h-7 text-emerald-600 fill-emerald-600" />
+                  :
+                    <Star className="w-7 h-7 text-emerald-600" />
+                }
+                {/* <Star className="w-7 h-7 text-emerald-600 fill-emerald-600" /> */}
               </div>
               <span className="text-xl font-bold text-gray-900">{product.rating}/5</span>
               <span className="text-gray-400 text-xs sm:text-sm">({product.reviews})</span>

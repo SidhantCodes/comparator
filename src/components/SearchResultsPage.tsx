@@ -76,7 +76,7 @@ export function SearchResultsPage() {
         const competitors = adapted.filter((p: any) => 
           p.id !== mainProduct.id && 
           p.category === mainProduct.category &&
-          p.price >= mainProduct.price - 10000 && 
+          p.price >= mainProduct.price - 20000 && 
           p.price <= mainProduct.price
         ).slice(0, 3);
 

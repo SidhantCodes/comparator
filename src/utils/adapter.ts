@@ -1,5 +1,6 @@
 import { Product } from '../data/mockData';
 import { ApiPhone, ApiComparePhone } from '../api/types';
+import { normalizeToFiveStars, processExpertView } from './expertReviewUtils';
 
 /**
  * Extract INR price from misc.price if available, fallback to EUR estimate
@@ -92,16 +93,7 @@ export const adaptApiPhoneToProduct = (apiPhone: ApiPhone): Product => {
     });
   }
 
-  const expertData = apiPhone.expert_view ? {
-    averageScore: apiPhone.expert_view.score_avg / 2, // 8.5/10 -> 4.25/5
-    count: apiPhone.expert_view.review_count,
-    sources: apiPhone.expert_view.sources.map(s => ({
-      name: s.site,
-      score: s.score / 2, // Normalize for stars
-      originalScore: s.score,
-      url: s.url
-    }))
-  } : undefined;
+  const expertData = processExpertView(apiPhone.expert_view)
 
   return {
     id: apiPhone._id,
@@ -114,9 +106,9 @@ export const adaptApiPhoneToProduct = (apiPhone: ApiPhone): Product => {
     daysAgo: apiPhone.specs?.launch?.status || 'Recently',
     beebomScore: Math.round(apiPhone.tech_score),
 
-    // Ratings not present in API
-    rating: 0,
-    reviews: 'No ratings yet',
+    rating: expertData ? expertData.averageScore : 0, 
+    reviews: expertData ? `${expertData.count} Expert Reviews` : 'No reviews yet',
+    
 
     highlight:
       apiPhone.tech_score >= 92
@@ -213,7 +205,7 @@ export const adaptComparePhoneToProduct = (
   apiPhone: ApiComparePhone
 ): Product => {
   const price = apiPhone.price_inr || 0; 
-
+  const rating = normalizeToFiveStars(Number(apiPhone.ratings.expert_score || apiPhone.ratings.user_score));
   return {
     id: apiPhone.id,
     name: apiPhone.model,
@@ -224,7 +216,7 @@ export const adaptComparePhoneToProduct = (
     oldPrice: price > 0 ? Math.round(price * 1.1) : 0,
 
     beebomScore: Math.round(apiPhone.tech_score),
-    rating: apiPhone.ratings.user_score || 0,
+    rating: rating,
     reviews: `${apiPhone.ratings.user_votes || 0} Ratings`,
 
     highlight: 'TOP SPEC',

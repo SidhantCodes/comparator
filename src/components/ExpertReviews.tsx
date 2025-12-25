@@ -1,16 +1,6 @@
-import React from 'react';
 import { Star, StarHalf } from 'lucide-react';
-
-interface ExpertReviewsProps {
-  data: {
-    averageScore: number;
-    sources: Array<{
-      name: string;
-      score: number;
-      url: string;
-    }>;
-  };
-}
+import { ExpertReviewsProps } from '../api/types';
+import { normalizeToFiveStars } from '../utils/expertReviewUtils';
 
 
 const BRAND_CONFIG: Record<string, { logo?: string; color?: string }> = {
@@ -24,7 +14,6 @@ const BRAND_CONFIG: Record<string, { logo?: string; color?: string }> = {
 
 export function ExpertReviews({ data }: ExpertReviewsProps) {
   
-  // Helper to determine what to show in the logo box
   const renderSourceLogo = (name: string) => {
     const config = BRAND_CONFIG[name.toLowerCase()];
 
@@ -38,7 +27,6 @@ export function ExpertReviews({ data }: ExpertReviewsProps) {
       );
     }
 
-    // FALLBACK: If no logo is found in the registry, show Initials
     const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
     return <span className="font-black text-emerald-700 text-lg">{initials}</span>;
   };
@@ -46,7 +34,7 @@ export function ExpertReviews({ data }: ExpertReviewsProps) {
   const renderStars = (rating: number) => {
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
-    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    const emptyStars = Math.max(0, 5 - fullStars - (hasHalfStar ? 1 : 0));
     
     return (
       <div className="flex gap-1 justify-center mb-1.5">
@@ -63,13 +51,14 @@ export function ExpertReviews({ data }: ExpertReviewsProps) {
 
   return (
     <div className="bg-emerald-100 rounded-lg p-8 sm:p-12 mb-8 border border-emerald-300">
-      {/* Expert Score Header */}
       <div className="flex justify-center mb-10 sm:mb-14">
         <div className="bg-white rounded-2xl p-6 px-10 shadow-sm border-2 border-emerald-300 flex flex-col items-center">
-          <span className="text-xs uppercase font-bold text-gray-400 tracking-widest mb-1">Expert Score</span>
+          <span className="text-xs uppercase font-bold text-gray-400 tracking-widest mb-1">Avg Expert Rating</span>
           <div className="flex items-center gap-4">
             <Star className="text-emerald-600 w-8 h-8 sm:w-10 sm:h-10" fill="currentColor" />
-            <span className="text-4xl sm:text-5xl font-black text-emerald-700">{data.averageScore.toFixed(1)}</span>
+            <span className="text-4xl sm:text-5xl font-black text-emerald-700">
+                {data.averageScore > 0 ? data.averageScore.toFixed(1) : 'N/A'}
+            </span>
           </div>
         </div>
       </div>

@@ -93,3 +93,14 @@ export interface UserProfile {
   email: string;
   role: string;
 }
+
+export interface ExpertReviewsProps {
+  data: {
+    averageScore: number;
+    sources: Array<{
+      name: string;
+      score: number;
+      url: string;
+    }>;
+  };
+}
