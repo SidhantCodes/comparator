@@ -17,6 +17,9 @@ import { incrementSearchCount, isSearchLimitReached } from '../utils/searchLimit
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
 
+import { MobilePriceInput } from "./MobilePriceInput"
+
+
 
 export function HomePage() {
   const navigate = useNavigate();
@@ -201,7 +204,7 @@ export function HomePage() {
                 </div>
 
                 {/* Price Slider */}
-                <div className="p-4 border-b md:border-b-0 md:border-r border-gray-200">
+                {/* <div className="p-4 border-b md:border-b-0 md:border-r border-gray-200">
                   <label className="block text-gray-500 text-xs uppercase tracking-wide mb-2">
                     Max Price:{' '}
                     <span className="text-emerald-700 font-semibold">
@@ -219,7 +222,37 @@ export function HomePage() {
                     }
                     className="w-full h-2 rounded-lg cursor-pointer accent-emerald-600"
                   />
+                </div> */}
+                {/* ================= Price Control ================= */}
+
+                {/* Desktop Slider */}
+                <div className="hidden md:block p-4 border-b md:border-b-0 md:border-r border-gray-200">
+                  <label className="block text-gray-500 text-xs uppercase tracking-wide mb-2">
+                    Max Price:{" "}
+                    <span className="text-emerald-700 font-semibold">
+                      {formatPrice(priceRange)}
+                    </span>
+                  </label>
+                  <input
+                    type="range"
+                    min={5000}
+                    max={300000}
+                    step={5000}
+                    value={priceRange}
+                    onChange={e => setPriceRange(Number(e.target.value))}
+                    className="w-full h-2 rounded-lg cursor-pointer accent-emerald-600"
+                  />
                 </div>
+
+                {/* Mobile Numeric Control */}
+                <div className="block md:hidden">
+                  <MobilePriceInput
+                    value={priceRange}
+                    onChange={setPriceRange}
+                  />
+                </div>
+
+                
 
                 {/* Submit */}
                 <button
