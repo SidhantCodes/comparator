@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, TrendingUp, X } from 'lucide-react';
+import { Search, TrendingUp } from 'lucide-react';
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -202,29 +202,7 @@ export function HomePage() {
                     />
                   </div>
                 </div>
-
-                {/* Price Slider */}
-                {/* <div className="p-4 border-b md:border-b-0 md:border-r border-gray-200">
-                  <label className="block text-gray-500 text-xs uppercase tracking-wide mb-2">
-                    Max Price:{' '}
-                    <span className="text-emerald-700 font-semibold">
-                      {formatPrice(priceRange)}
-                    </span>
-                  </label>
-                  <input
-                    type="range"
-                    min={5000}
-                    max={300000}
-                    step={5000}
-                    value={priceRange}
-                    onChange={e =>
-                      setPriceRange(Number(e.target.value))
-                    }
-                    className="w-full h-2 rounded-lg cursor-pointer accent-emerald-600"
-                  />
-                </div> */}
                 {/* ================= Price Control ================= */}
-
                 {/* Desktop Slider */}
                 <div className="hidden md:block p-4 border-b md:border-b-0 md:border-r border-gray-200">
                   <label className="block text-gray-500 text-xs uppercase tracking-wide mb-2">

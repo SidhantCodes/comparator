@@ -2,13 +2,12 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, Plus, Search, X } from 'lucide-react';
 
-// import { Header } from './Header';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
 import { endpoints } from '../api/client';
 import { adaptComparePhoneToProduct } from '../utils/adapter';
 import { Product } from '../data/mockData';
-import { ApiPhone } from '../api/types'; // Assuming this exists from previous step
+import { ApiPhone } from '../api/types';
 
 export function ComparePage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -24,7 +23,7 @@ export function ComparePage() {
   // Search/Add Product state
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchPool, setSearchPool] = useState<ApiPhone[]>([]); // The list we filter against
+  const [searchPool, setSearchPool] = useState<ApiPhone[]>([]);
   const [searchResults, setSearchResults] = useState<ApiPhone[]>([]);
   const [isPoolLoading, setIsPoolLoading] = useState(false);
   

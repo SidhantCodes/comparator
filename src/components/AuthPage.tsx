@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
-import { Layers, Mail, Lock, Loader2, ArrowRight, User, Phone } from 'lucide-react'; // Added User and Phone
+import { Layers, Mail, Lock, Loader2, ArrowRight, User, Phone } from 'lucide-react';
 import { endpoints } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
@@ -16,7 +16,6 @@ export function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   
-  // 1. Updated state to include name and phone
   const [formData, setFormData] = useState({ 
     email: '', 
     password: '',
@@ -39,7 +38,6 @@ export function AuthPage() {
         toast.success('Welcome back!');
         navigate('/');
       } else {
-        // 2. Console log the extra fields for now
         console.log('Registering user with:', {
           name: formData.name,
           phone: formData.phone,
@@ -84,7 +82,6 @@ export function AuthPage() {
         <CardContent className="px-6 pb-8">
           <form onSubmit={handleSubmit} className="space-y-4">
             
-            {/* 3. Conditional Name Field */}
             {!isLogin && (
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
@@ -103,7 +100,6 @@ export function AuthPage() {
               </div>
             )}
 
-            {/* 4. Conditional Phone Field */}
             {!isLogin && (
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
@@ -122,7 +118,6 @@ export function AuthPage() {
               </div>
             )}
 
-            {/* Email */}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
@@ -141,7 +136,6 @@ export function AuthPage() {
               </div>
             </div>
 
-            {/* Password */}
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">

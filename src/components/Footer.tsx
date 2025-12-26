@@ -1,24 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Layers} from 'lucide-react';
-import { FaFacebook, FaTwitter, FaInstagram } from "react-icons/fa";
+import { socialLinks } from '../utils/constants';
 
-const socialLinks = [
-  {
-    name: "Facebook",
-    url: "#",
-    icon: FaFacebook,
-  },
-  {
-    name: "X",
-    url: "#",
-    icon: FaTwitter,
-  },
-  {
-    name: "Instagram",
-    url: "#",
-    icon: FaInstagram,
-  },
-];
 
 export function Footer() {
   return (

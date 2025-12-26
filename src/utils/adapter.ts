@@ -107,7 +107,7 @@ export const adaptApiPhoneToProduct = (apiPhone: ApiPhone): Product => {
     beebomScore: Math.round(apiPhone.tech_score),
 
     rating: expertData ? expertData.averageScore : 0, 
-    reviews: expertData ? `${expertData.count} Expert Reviews` : 'No reviews yet',
+    reviews: expertData ? `${expertData.count} Reviews` : 'No reviews yet',
     
 
     highlight:

@@ -1,24 +1,11 @@
 "use client"
 
-import React, { ReactNode, useRef } from "react" // Added React and useRef import
+import React, { useRef } from "react"
 import { X } from "lucide-react"
-import type { Product } from "../data/mockData"
 import { ImageWithFallback } from "./figma/ImageWithFallback"
 import { useNavigate } from "react-router-dom"
+import { ComparisonTableProps } from "../api/types"
 
-export interface ComparisonCategory {
-  title: string
-  rows: {
-    label: React.ReactNode
-    getValue: (product: Product) => ReactNode
-  }[]
-}
-
-interface ComparisonTableProps {
-  products: Product[]
-  categories: ComparisonCategory[]
-  onRemoveProduct: (id: string) => void
-}
 
 export function ComparisonTable({ products, categories, onRemoveProduct }: ComparisonTableProps) {
   const navigate = useNavigate()

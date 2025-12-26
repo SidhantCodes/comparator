@@ -1,16 +1,9 @@
 import { Star, StarHalf } from 'lucide-react';
 import { ExpertReviewsProps } from '../api/types';
-import { normalizeToFiveStars } from '../utils/expertReviewUtils';
+import { BRAND_CONFIG } from '../utils/constants';
 
 
-const BRAND_CONFIG: Record<string, { logo?: string; color?: string }> = {
-  'the verge': {
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/a/af/The_Verge_logo.svg',
-  },
-  'techradar': {
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/2/21/TechRadar_logo_%282023%29.svg',
-  },
-};
+
 
 export function ExpertReviews({ data }: ExpertReviewsProps) {
   

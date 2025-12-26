@@ -1,9 +1,5 @@
 import React from "react";
-
-type CardDiscountPillProps = {
-  text?: string;
-  className?: string;
-};
+import { CardDiscountPillProps } from "../api/types";
 
 export const CardDiscountPill: React.FC<CardDiscountPillProps> = ({
   text = "Card Discount",
@@ -11,7 +7,6 @@ export const CardDiscountPill: React.FC<CardDiscountPillProps> = ({
 }) => {
   return (
     <span className={`card-discount-pill ${className}`} aria-label={text}>
-      {/* Gradient overlay (animated) */}
       <span className="card-discount-pill__bg" aria-hidden="true" />
 
       <svg

@@ -1,12 +1,6 @@
-import { ExternalLink } from "lucide-react"
-import { Product } from "../data/mockData"
+import { PriceComparisonProps } from "../api/types"
 
-type PriceComparisonProps = {
-  price: number
-  retailerName: string
-  priceComparison: Product["priceComparison"]
-  className?: string
-}
+
 
 export function PriceComparison({
   price,

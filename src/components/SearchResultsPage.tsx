@@ -2,10 +2,11 @@
 
 import { useSearchParams, useNavigate } from "react-router-dom"
 import { useState, useEffect, useRef } from "react"
-import { ArrowRight, ExternalLink, Plus, Search } from "lucide-react"
+import { ArrowRight, Plus, Search } from "lucide-react"
 
 import { ImageWithFallback } from "./figma/ImageWithFallback"
-import { ComparisonTable, type ComparisonCategory } from "./ComparisonTable"
+import { ComparisonTable } from "./ComparisonTable"
+import { type ComparisonCategory } from "../api/types"
 
 import { endpoints } from "../api/client"
 import { adaptApiPhoneToProduct } from "../utils/adapter"

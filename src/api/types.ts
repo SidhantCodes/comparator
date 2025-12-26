@@ -1,3 +1,6 @@
+import { ReactNode } from "react";
+import { Product } from "../data/mockData";
+
 export type DeviceCategory = 'phone' | 'watch' | 'tablet';
 
 export interface ExpertSource {
@@ -103,4 +106,43 @@ export interface ExpertReviewsProps {
       url: string;
     }>;
   };
+}
+
+export type FeaturedProductCardProps = {
+  product: Product
+}
+
+export type CardDiscountPillProps = {
+  text?: string;
+  className?: string;
+};
+
+export interface ComparisonCategory {
+  title: string
+  rows: {
+    label: React.ReactNode
+    getValue: (product: Product) => ReactNode
+  }[]
+}
+
+export interface ComparisonTableProps {
+  products: Product[]
+  categories: ComparisonCategory[]
+  onRemoveProduct: (id: string) => void
+}
+
+
+export type MobilePriceInputProps = {
+  value: number
+  min?: number
+  max?: number
+  step?: number
+  onChange: (value: number) => void
+}
+
+export type PriceComparisonProps = {
+  price: number
+  retailerName: string
+  priceComparison: Product["priceComparison"]
+  className?: string
 }

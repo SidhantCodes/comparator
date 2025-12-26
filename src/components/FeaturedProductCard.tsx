@@ -1,15 +1,14 @@
 "use client"
 
-import { Cpu, Monitor, Camera, Battery, HardDrive, ChevronRight, Star } from "lucide-react"
+import { ChevronRight, Star } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 
 import { ImageWithFallback } from "./figma/ImageWithFallback"
-import type { Product } from "../data/mockData"
 import { PriceComparison } from "./PriceComparison"
+import { QuickSpecs } from "./QuickSpecs"
+import { FeaturedProductCardProps } from "../api/types"
 
-type FeaturedProductCardProps = {
-  product: Product
-}
+
 
 export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
   const navigate = useNavigate()
@@ -46,38 +45,12 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
             <div className="flex items-center gap-2">
               <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
               <span className="text-white font-medium text-lg">{product.rating}</span>
-              <span className="text-white/80">({product.reviews} Ratings)</span>
+              <span className="text-white/80">({product.reviews})</span>
             </div>
           </div>
 
           {/* Quick Specs */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            <Spec icon={<Monitor />} label="Display">
-              {product.detailedSpecs.display.size.split(" ")[0]}"
-              <div className="text-sm text-white/60">
-                {`${product.detailedSpecs.display.resolution.split("pixels")[0]}`}
-              </div>
-            </Spec>
-
-            <Spec icon={<Camera />} label="Main Camera">
-              {product.detailedSpecs.camera.rear.main?.match(/(\d+)\s*MP/i)?.[1] ?? "N/A"} MP
-            </Spec>
-
-            <Spec icon={<Battery />} label="Battery">
-              {product.detailedSpecs.battery.capacity.match(/(\d+)\s*mAh/)?.[1] ?? "N/A"} mAh
-              <div className="text-sm text-white/60 flex">
-                {((w) => (w ? `${Math.max(...w.map(Number))}W` : "N/A"))(
-                  product.detailedSpecs.battery.charging?.match(/\d+(?=W)/gi),
-                )}
-              </div>
-            </Spec>
-            <Spec icon={<HardDrive />} label="RAM">
-              {product.detailedSpecs.ramStorage.ram}
-            </Spec>
-            <Spec icon={<Cpu />} label="Storage">
-              {product.detailedSpecs.ramStorage.storage}
-            </Spec>
-          </div>
+          <QuickSpecs product={product} />
         </div>
 
         {/* MOBILE ONLY: Price Comparison (before Quick Specs) */}
@@ -121,29 +94,6 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
           View Full Specs
           <ChevronRight className="w-4 h-4 flex-shrink-0" />
         </button>
-      </div>
-    </div>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* Spec Card                                                           */
-/* ------------------------------------------------------------------ */
-function Spec({
-  icon,
-  label,
-  children,
-}: {
-  icon: React.ReactNode
-  label: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="flex items-start gap-1 border border-white/30 rounded-lg p-3 bg-white/5">
-      <div className="text-white w-5 h-5">{icon}</div>
-      <div>
-        <div className="text-xs text-white/80 mb-1">{label}</div>
-        <div className="text-sm text-white font-medium">{children}</div>
       </div>
     </div>
   )
