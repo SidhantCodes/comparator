@@ -1,3 +1,4 @@
+import { ExternalLink } from "lucide-react"
 import { PriceComparisonProps } from "../api/types"
 
 
@@ -38,6 +39,7 @@ export function PriceComparison({
             hover:shadow-md
             hover:ring-2
             hover:ring-emerald-600/30
+            gap-1
           "
         >
           <img
@@ -49,7 +51,7 @@ export function PriceComparison({
           <span className="text-emerald-600 font-semibold text-sm ml-1 hover:text-emerald-700 transition-all duration-200 ease-out">
             Check Latest Price
           </span>
-          {/* <ExternalLink className="w-4 h-4 text-gray-400 transition group-hover:text-emerald-600" /> */}
+          <ExternalLink className="w-3 h-3 text-emerald-600 transition group-hover:text-emerald-600" />
         </a>
       ))}
     </div>

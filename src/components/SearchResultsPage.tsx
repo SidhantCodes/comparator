@@ -2,7 +2,7 @@
 
 import { useSearchParams, useNavigate } from "react-router-dom"
 import { useState, useEffect, useRef } from "react"
-import { ArrowRight, Plus, Search } from "lucide-react"
+import { ArrowRight, ExternalLink, Plus, Search } from "lucide-react"
 
 import { ImageWithFallback } from "./figma/ImageWithFallback"
 import { ComparisonTable } from "./ComparisonTable"
@@ -152,6 +152,7 @@ export function SearchResultsPage() {
                       <span className="text-[11px] font-medium text-white truncate max-w-[70px]">
                         Check Latest Price
                       </span>
+                      <ExternalLink className="w-3 h-3 text-white"/>
                     </div>
                   </a>
                 ))
@@ -299,9 +300,9 @@ export function SearchResultsPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     key={idx} 
-                    className="flex items-center justify-center gap-2 bg-emerald-600 px-2 py-1 rounded-lg hover:bg-emerald-700 transition-colors duration-300"
+                    className="flex items-center justify-center gap-1 bg-emerald-600 px-2 py-1 rounded-lg hover:bg-emerald-700 transition-colors duration-300"
                   >
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
                       <img 
                         src={offer.logo} 
                         alt={offer.retailer} 
@@ -310,6 +311,7 @@ export function SearchResultsPage() {
                       <span className="text-[11px] font-medium text-white truncate max-w-[70px]">
                         Check Latest Price
                       </span>
+                      <ExternalLink className="w-3 h-3 text-white"/>
                     </div>
                   </a>
                 ))
@@ -423,7 +425,7 @@ export function SearchResultsPage() {
               )}
             </div>
           </div>
-          <div className="flex md:hidden items-center opacity-80">
+          <div className="flex md:hidden items-center justify-center opacity-80">
             <span className="text-gray-600 text-sm">Swipe to view more devices</span>
             <ArrowRight className="w-3 h-3 text-gray-600 ml-1"/>
           </div>

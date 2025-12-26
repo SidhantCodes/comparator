@@ -26,7 +26,7 @@ export function HomePage() {
   const { user } = useAuth();
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [priceRange, setPriceRange] = useState(150000);
+  const [priceRange, setPriceRange] = useState(5000);
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);

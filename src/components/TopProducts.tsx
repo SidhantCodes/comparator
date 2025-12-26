@@ -77,7 +77,8 @@ export function TopProducts() {
   /* ---------------------- Mini Card ---------------------- */
   const ProductMiniCard = ({ product }: { product: Product }) => (
     <div
-      onClick={() => navigate(`/product/${product.id}`)}
+    
+      onClick={() => navigate(`/search?q=${encodeURIComponent(product.name)}`)}
       className="flex items-center gap-3 p-3 bg-white border border-gray-100 rounded-xl hover:shadow-md transition cursor-pointer h-[80px]"
     >
       <div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden">

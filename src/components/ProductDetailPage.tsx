@@ -140,7 +140,7 @@ export function ProductDetailPage() {
     <div className="min-h-screen bg-gray-50 overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Back */}
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 cursor-pointer">
           <ChevronLeft className="w-4 h-4" />
           Back to results
         </button>
@@ -154,7 +154,7 @@ export function ProductDetailPage() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-6 mb-8">
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-6 mb-8 mt-6">
             {/* Score */}
             <div className="flex items-center gap-3 px-4 py-2 bg-emerald-50/50 border border-emerald-200 rounded-2xl">
               <span className="text-xl sm:text-3xl font-bold text-emerald-600">{product.beebomScore}</span>
