@@ -2,14 +2,21 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-export function ProtectedLayout() {
+interface ProtectedLayoutProps {
+  requiredRole?: string;
+}
+
+export function ProtectedLayout({ requiredRole }: ProtectedLayoutProps) {
   const { user, loading } = useAuth();
 
   if (loading) return null;
 
   if (!user) {
-    // Only redirect to auth if the route is explicitly wrapped by this layout
     return <Navigate to="/auth" replace />;
+  }
+
+  if (requiredRole && user.role !== requiredRole) {
+    return <Navigate to="/" replace />; // Redirect non-admins to home
   }
 
   return <Outlet />;

@@ -12,6 +12,7 @@ import { ComparePage } from './components/ComparePage';
 import { Header } from './components/Header'; // Import Header here
 import { Footer } from './components/Footer';
 import { ScrollToTop } from './components/ScrollToTop';
+import { AdminAffiliatePage } from './components/AdminAffiliatePage';
 
 export default function App() {
   return (
@@ -33,6 +34,9 @@ export default function App() {
           {/* Protected Routes (e.g., Profile, Settings, or specific Rating pages) */}
           <Route element={<ProtectedLayout />}>
             {/* Add routes here that strictly require login */}
+          </Route>
+          <Route element={<ProtectedLayout requiredRole="admin" />}>
+            <Route path="/admin/affiliates" element={<AdminAffiliatePage />} />
           </Route>
         </Routes>
         <Footer />
