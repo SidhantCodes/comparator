@@ -1,75 +1,58 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, Link as LinkIcon, Save, Loader2, Package, ExternalLink, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link as LinkIcon, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { endpoints } from '../api/client';
-import { adaptApiPhoneToProduct } from '../utils/adapter';
-import { Product } from '../data/mockData';
+import { ApiPhone } from '../api/types';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { toast } from 'sonner';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
+import { Badge } from './ui/badge';
+import { cn } from './ui/utils';
 
 export function AdminAffiliatePage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchPool, setSearchPool] = useState<Product[]>([]);
-  const [searchResults, setSearchResults] = useState<Product[]>([]);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [updating, setUpdating] = useState<'amazon' | 'flipkart' | null>(null);
-
+  const [allPhones, setAllPhones] = useState<ApiPhone[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [updating, setUpdating] = useState<string | null>(null);
   const [urls, setUrls] = useState({ amazon: '', flipkart: '' });
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Load products for search
   useEffect(() => {
-    const loadPool = async () => {
+    const loadProducts = async () => {
+      setLoading(true);
       try {
-        const res = await endpoints.searchAll(1, 300);
-        setSearchPool(res.data.data.map(adaptApiPhoneToProduct));
+        const res = await endpoints.searchAll(1, 500);
+        setAllPhones(res.data.data);
       } catch (err) {
-        toast.error('Failed to load product directory');
+        toast.error('Failed to load products');
+      } finally {
+        setLoading(false);
       }
     };
-    loadPool();
+    loadProducts();
   }, []);
 
-  // Fuzzy search logic
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setSearchResults([]);
-      return;
-    }
-    const q = searchQuery.toLowerCase();
-    setSearchResults(searchPool.filter(p => p.name.toLowerCase().includes(q)));
-  }, [searchQuery, searchPool]);
-
-  // Close dropdown on click outside
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setShowDropdown(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  const handleSelect = (product: Product) => {
-    setSelectedProduct(product);
-    // Prefill URLs from existing data
-    const amz = product.priceComparison.find(p => p.retailer.toLowerCase() === 'amazon')?.url || '';
-    const flk = product.priceComparison.find(p => p.retailer.toLowerCase() === 'flipkart')?.url || '';
-    setUrls({ amazon: amz, flipkart: flk });
-    setSearchQuery('');
-    setShowDropdown(false);
+  // Robust check: Ensure property exists, is not null, and not an empty string
+  const getLinkStatus = (phone: ApiPhone) => {
+    const hasAmazon = !!phone.affiliate_links?.amazon && phone.affiliate_links.amazon.length > 5;
+    const hasFlipkart = !!phone.affiliate_links?.flipkart && phone.affiliate_links.flipkart.length > 5;
+    return hasAmazon && hasFlipkart;
   };
 
-  const handleUpdate = async (retailer: 'amazon' | 'flipkart') => {
-    if (!selectedProduct) return;
-    const url = urls[retailer];
+  const toggleExpand = (phone: ApiPhone) => {
+    if (expandedId === phone._id) {
+      setExpandedId(null);
+    } else {
+      setExpandedId(phone._id);
+      setUrls({
+        amazon: phone.affiliate_links?.amazon || '',
+        flipkart: phone.affiliate_links?.flipkart || ''
+      });
+    }
+  };
 
+  const handleUpdate = async (phoneId: string, retailer: 'amazon' | 'flipkart') => {
+    const url = urls[retailer];
     if (!url.startsWith('http')) {
       toast.error('Please enter a valid URL');
       return;
@@ -77,126 +60,151 @@ export function AdminAffiliatePage() {
 
     setUpdating(retailer);
     try {
-      await endpoints.updateAffiliate(selectedProduct.id, retailer, url);
-      toast.success(`${retailer.charAt(0).toUpperCase() + retailer.slice(1)} link updated!`);
+      await (endpoints as any).affiliate.update(phoneId, retailer, url);
+      toast.success(`${retailer} link updated!`);
+      
+      setAllPhones(prev => prev.map(p => 
+        p._id === phoneId 
+          ? { ...p, affiliate_links: { ...p.affiliate_links, [retailer]: url } }
+          : p
+      ));
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to update link');
+      toast.error('Failed to update link');
     } finally {
       setUpdating(null);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 mt-10">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-gray-900">Affiliate Link Manager</h1>
-          <p className="text-gray-500">Search for a product to update its retailer links</p>
+    <div className="min-h-screen bg-gray-50 pb-20 pt-24 px-4">
+      <div className="max-w-5xl mx-auto">
+        
+        {/* Header - Centered */}
+        <div className="mb-10 text-center">
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight">Affiliate Link Manager</h1>
+          <p className="text-gray-500 mt-2">Manage store redirects for {allPhones.length} devices</p>
         </div>
 
-        {/* Search Section */}
-        <div className="relative" ref={dropdownRef}>
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <Input
-              className="pl-12 h-14 text-lg bg-white shadow-sm border-gray-200 focus-visible:ring-emerald-500 rounded-lg mt-6"
-              placeholder="Search product by name..."
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setShowDropdown(true);
-              }}
-              onFocus={() => setShowDropdown(true)}
-            />
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="h-10 w-10 animate-spin text-emerald-600 mb-4" />
+            <p className="font-medium text-gray-600">Syncing products...</p>
           </div>
+        ) : (
+          <div className="space-y-3">
+            {allPhones.map((phone) => {
+              const isComplete = getLinkStatus(phone);
+              const isExpanded = expandedId === phone._id;
 
-          {showDropdown && searchResults.length > 0 && (
-            <div className="absolute top-full left-0 w-full mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50">
-              {searchResults.slice(0, 8).map(p => (
-                <button
-                  key={p.id}
-                  onClick={() => handleSelect(p)}
-                  className="w-full text-left px-6 py-4 hover:bg-emerald-50 flex items-center gap-4 border-b border-gray-50 last:border-0 transition-colors"
-                >
-                  <div className="w-12 h-12 flex-shrink-0 bg-gray-50 rounded p-1">
-                    <ImageWithFallback src={p.image} className="w-full h-full object-contain" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-semibold text-gray-900">{p.name}</div>
-                    <div className="text-xs text-gray-500 uppercase">{p.id}</div>
-                  </div>
-                  <div className="text-emerald-600 font-bold">₹{p.price.toLocaleString()}</div>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+              return (
+                <div key={phone._id} className="w-full">
+                  {/* DEVICE ROW */}
+                  <button
+                    onClick={() => toggleExpand(phone)}
+                    className={cn(
+                      "w-full flex items-center justify-between p-4 bg-white border rounded-xl transition-all shadow-sm relative overflow-hidden",
+                      isComplete 
+                        ? "border-emerald-200 hover:bg-emerald-50/30" 
+                        : "border-rose-300 bg-rose-50/40 hover:bg-rose-50", // High visibility red border/bg
+                      isExpanded && "ring-2 ring-gray-900 ring-offset-2"
+                    )}
+                  >
+                    {/* Visual Status Bar (Vertical) */}
+                    <div className={cn(
+                      "absolute left-0 top-0 bottom-0 w-1.5",
+                      isComplete ? "bg-emerald-500" : "bg-rose-600"
+                    )} />
 
-        {/* Edit Section */}
-        {selectedProduct && (
-          <Card className="border-emerald-100 shadow-lg overflow-hidden animate-in fade-in slide-in-from-bottom-4 mt-10">
-            <div className="bg-emerald-600 p-6 text-white flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="bg-white p-2 rounded-lg w-16 h-20 flex items-center justify-center flex-shrink-0">
-                  <ImageWithFallback src={selectedProduct.image} className="w-full h-full object-contain" />
-                </div>
-                <div>
-                  <CardTitle className="text-2xl">{selectedProduct.name}</CardTitle>
-                  <CardDescription className="text-emerald-100">ID: {selectedProduct.id}</CardDescription>
-                </div>
-              </div>
-              <Button 
-                variant="ghost" 
-                className="text-white hover:bg-emerald-700 h-10 w-10 p-0 rounded-full"
-                onClick={() => setSelectedProduct(null)}
-              >
-                <X className="h-6 w-6" />
-              </Button>
-            </div>
-            
-            <CardContent className="p-8 space-y-8">
+                    <div className="flex items-center gap-4 pl-2">
+                      <div className="w-10 h-10 bg-white border border-gray-100 rounded p-1 flex-shrink-0">
+                        <ImageWithFallback src={phone.image} className="w-full h-full object-contain" />
+                      </div>
 
-              {/* Flipkart Field */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="text-base font-semibold flex items-center gap-2">
-                    <img src="https://www.google.com/s2/favicons?domain=flipkart.com&sz=32" className="w-5 h-5" alt="" />
-                    Flipkart URL
-                  </Label>
-                  {urls.flipkart && (
-                    <a href={urls.flipkart} target="_blank" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
-                      Test Link <ExternalLink className="h-3 w-3" />
-                    </a>
+                      <div className="text-left">
+                        <h3 className="font-bold text-gray-900 text-sm md:text-base">
+                          {phone.model_name}
+                        </h3>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          {isComplete ? (
+                            <span className="text-emerald-700 text-[10px] font-bold flex items-center gap-1">
+                              <CheckCircle2 className="h-3 w-3" /> READY
+                            </span>
+                          ) : (
+                            <span className="text-rose-700 text-[10px] font-bold flex items-center gap-1 animate-pulse">
+                              <AlertCircle className="h-3 w-3" /> ACTION REQUIRED
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={cn(
+                      "transition-transform duration-200",
+                      isExpanded ? "rotate-180 text-gray-900" : "text-gray-400"
+                    )}>
+                      <ChevronDown className="h-5 w-5" />
+                    </div>
+                  </button>
+
+                  {/* EXPANDED PANEL */}
+                  {isExpanded && (
+                    <div className={cn(
+                      "mt-1 rounded-xl border-x border-b p-4 md:p-6 bg-white animate-in slide-in-from-top-2 duration-200",
+                      isComplete ? "border-emerald-200" : "border-rose-200"
+                    )}>
+                      <div className="flex flex-col md:flex-row gap-6 items-start">
+                        
+                        {/* Compact Image Area */}
+                        <div className="flex flex-row md:flex-col items-center gap-4 w-full md:w-32">
+                          <div className="w-20 h-24 bg-gray-50 rounded-lg p-2 border border-gray-100 flex items-center justify-center shrink-0">
+                            <ImageWithFallback src={phone.image} className="w-full h-full object-contain" />
+                          </div>
+                          <div className="flex-1">
+                             <p className="text-[10px] text-gray-400 font-mono uppercase truncate">ID: {phone._id}</p>
+                             <Badge variant="secondary" className="mt-1 text-[10px] whitespace-nowrap">
+                               {phone.brand}
+                             </Badge>
+                          </div>
+                        </div>
+
+                        {/* Editor Forms */}
+                        <div className="flex-1 w-full space-y-5">
+                          {/* Flipkart Input */}
+                          <div className="space-y-2">
+                            <Label className="flex items-center gap-2 text-xs font-bold text-gray-600">
+                              <img src="https://www.google.com/s2/favicons?domain=flipkart.com&sz=128" className="w-4 h-4" alt=""/>
+                              FLIPKART LINK
+                            </Label>
+                            <div className="flex flex-col sm:flex-row gap-2">
+                              <div className="relative flex-1">
+                                <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+                                <Input 
+                                  value={urls.flipkart}
+                                  onChange={(e) => setUrls({...urls, flipkart: e.target.value})}
+                                  className="pl-9 h-10 bg-gray-50 focus:bg-white text-sm rounded-lg mt-2"
+                                  placeholder="Paste Flipkart link here..."
+                                />
+                              </div>
+                              <Button 
+                                size="sm"
+                                className={cn(
+                                  "h-10 px-6 font-bold",
+                                  isComplete ? "bg-emerald-600 hover:bg-emerald-700" : "bg-rose-600 hover:bg-rose-700"
+                                )}
+                                onClick={() => handleUpdate(phone._id, 'flipkart')}
+                                disabled={updating !== null}
+                              >
+                                {updating === 'flipkart' ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save Link'}
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
-                <div className="flex gap-3">
-                  <div className="relative flex-1">
-                    <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input 
-                      value={urls.flipkart}
-                      onChange={(e) => setUrls({...urls, flipkart: e.target.value})}
-                      placeholder="https://flipkart.com/p/..." 
-                      className="pl-10"
-                    />
-                  </div>
-                  <Button 
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg" 
-                    onClick={() => handleUpdate('flipkart')}
-                    disabled={updating !== null}
-                  >
-                    {updating === 'flipkart' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-                    Update
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {!selectedProduct && (
-          <div className="bg-white border border-dashed border-gray-300 rounded-2xl p-20 text-center space-y-4 mt-10 px-3 pb-3 p-2">
-            <Package className="h-12 w-12 text-gray-300 mx-auto" />
-            <p className="text-gray-500 px-3">No product selected. Use the search bar above to begin.</p>
+              );
+            })}
           </div>
         )}
       </div>

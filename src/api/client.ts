@@ -49,6 +49,8 @@ export const endpoints = {
     apiClient.get(`/phones/compare?ids=${ids.join(',')}`),
   getExpertRatings: (deviceId: string) =>
     apiClient.get(`/company_rate/${deviceId}`),
-  updateAffiliate: (id: string, retailer: 'amazon' | 'flipkart', url: string) =>
-    apiClient.patch(`/phones/${id}/affiliate/${retailer}`, { url }),
+  affiliate: {
+    update: (id: string, retailer: 'amazon' | 'flipkart', url: string) =>
+      apiClient.put(`/phones/${id}/affiliate/${retailer}`, { url }),
+  },
 };
