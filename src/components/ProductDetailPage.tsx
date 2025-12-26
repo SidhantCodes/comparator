@@ -12,6 +12,7 @@ import type { Product } from "../data/mockData"
 import type { ApiPhone } from "../api/types"
 import { CardDiscountPill } from "./CardDiscountPillProps"
 import { ExpertReviews } from "./ExpertReviews"
+import { ScrollToTop } from "./ScrollToTop"
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -19,6 +20,8 @@ export function ProductDetailPage() {
 
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
+
+  
 
   /* ----------------------------- Fetch ----------------------------- */
   useEffect(() => {
@@ -138,6 +141,7 @@ export function ProductDetailPage() {
   /* ----------------------------- Render ----------------------------- */
   return (
     <div className="min-h-screen bg-gray-50 overflow-x-hidden">
+      <ScrollToTop />
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Back */}
         <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 cursor-pointer">

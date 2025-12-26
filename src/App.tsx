@@ -11,12 +11,14 @@ import { ProductDetailPage } from './components/ProductDetailPage';
 import { ComparePage } from './components/ComparePage';
 import { Header } from './components/Header'; // Import Header here
 import { Footer } from './components/Footer';
+import { ScrollToTop } from './components/ScrollToTop';
 
 export default function App() {
   return (
     <AuthProvider>
       <Router>
         <Toaster position="top-center" richColors />
+        <ScrollToTop />
         {/* Header is now outside of Routes or at the top level to show on all pages */}
         <Header /> 
         <Routes>
